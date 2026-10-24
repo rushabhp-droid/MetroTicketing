@@ -1,0 +1,10 @@
+target/
+dist/
+*.class
+*.dat
+*.db
+Ticket_*.txt
+QR_*.png
+.settings/
+.classpath
+.project
