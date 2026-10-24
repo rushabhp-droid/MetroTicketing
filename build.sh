@@ -84,7 +84,7 @@ do_run() {
     fi
     
     echo -e "${C_CYAN}[LAUNCH]${C_RESET} Starting Mumbai Metro Ticketing System..."
-    java -jar "${JAR_PATH}"
+    java -Dsun.java2d.xrender=false -jar "${JAR_PATH}"
 }
 
 do_test() {
