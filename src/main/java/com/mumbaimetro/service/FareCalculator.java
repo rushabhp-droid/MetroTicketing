@@ -37,8 +37,22 @@ public class FareCalculator {
             return 20.0;
         } else if (distanceKm <= 9.0) {
             return 30.0;
-        } else {
+        } else if (distanceKm <= 12.0) {
             return 40.0;
+        } else if (distanceKm <= 15.0) {
+            return 50.0;
+        } else if (distanceKm <= 18.0) {
+            return 60.0;
+        } else if (distanceKm <= 21.0) {
+            return 70.0;
+        } else if (distanceKm <= 24.0) {
+            return 80.0;
+        } else if (distanceKm <= 27.0) {
+            return 90.0;
+        } else if (distanceKm <= 30.0) {
+            return 100.0;
+        } else {
+            return 110.0;
         }
     }
 
