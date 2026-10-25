@@ -38,6 +38,9 @@ public class TicketApiController {
             if (src == null || dst == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Source or destination station is invalid."));
             }
+            if (!src.getLineCode().equals(dst.getLineCode())) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Cannot select stations from two different lines! Both stations must be on the same Metro line."));
+            }
 
             Ticket ticket = metroService.bookSingleJourneyToken(src, dst, req.passengers, req.returnTrip, req.peakHour);
             String qrBase64 = QRCodeGenerator.generateQRCodeBase64(ticket.getQrData(), 6);

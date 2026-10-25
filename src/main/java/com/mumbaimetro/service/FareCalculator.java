@@ -22,10 +22,11 @@ public class FareCalculator {
         if (src.equals(dest)) {
             throw new InvalidStationException("Origin and Destination cannot be the same station (" + src.getName() + ")!");
         }
-        if (src.getLineCode().equals(dest.getLineCode())) {
-            return Math.abs(dest.getDistanceKm() - src.getDistanceKm());
+        if (!src.getLineCode().equals(dest.getLineCode())) {
+            throw new InvalidStationException("Cannot select stations from two different lines (" 
+                    + src.getLineName() + " and " + dest.getLineName() + "). Both stations must be on the same Metro line.");
         }
-        return calculateInterLineDistance(src, dest);
+        return Math.abs(dest.getDistanceKm() - src.getDistanceKm());
     }
 
     private double calculateInterLineDistance(Station src, Station dest) {

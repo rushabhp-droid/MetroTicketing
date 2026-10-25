@@ -11,7 +11,7 @@ const LINE_CONFIG = {
   NMM_1: { name: 'Navi Mumbai L1', color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)' },
 };
 
-export function InteractiveMap({ stations, lines, origin, destination, onSelectStation }) {
+export function InteractiveMap({ stations, lines, origin, destination, onSelectStation, onClearRoute }) {
   const [activeLineFilter, setActiveLineFilter] = useState('ALL');
   const [hoveredStation, setHoveredStation] = useState(null);
 
@@ -101,32 +101,55 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
         {(origin || destination) && (
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            flexWrap: 'wrap', gap: '0.75rem',
             background: '#080808',
             border: '1px solid rgba(0, 240, 255, 0.35)',
             borderRadius: '0.75rem', padding: '0.75rem 1.25rem',
             marginBottom: '1.25rem',
             boxShadow: '0 4px 16px rgba(0,0,0,0.8)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <span className="badge-pill" style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981', border: '1px solid #10b981' }}>
                   <MapPin size={12} /> Origin
                 </span>
-                <strong style={{ fontSize: '0.9rem' }}>{origin ? origin.name : 'Select on map...'}</strong>
+                <strong style={{ fontSize: '0.9rem' }}>{origin ? `${origin.name} (${origin.lineName || origin.lineCode})` : 'Select on map...'}</strong>
               </div>
               <span style={{ color: 'var(--text-dim)' }}>➔</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <span className="badge-pill" style={{ background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid #ef4444' }}>
                   <Navigation size={12} /> Destination
                 </span>
-                <strong style={{ fontSize: '0.9rem' }}>{destination ? destination.name : 'Select on map...'}</strong>
+                <strong style={{ fontSize: '0.9rem' }}>{destination ? `${destination.name} (${destination.lineName || destination.lineCode})` : 'Select destination on same line...'}</strong>
               </div>
             </div>
-            {origin && destination && (
-              <div style={{ fontSize: '0.85rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
-                Direct or Interchange Journey Route Active
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {origin && destination ? (
+                <div style={{ fontSize: '0.85rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                  Same-Line Journey Route Active
+                </div>
+              ) : origin ? (
+                <div style={{ fontSize: '0.82rem', color: '#f59e0b', fontWeight: 600 }}>
+                  Select destination on {origin.lineName || origin.lineCode}
+                </div>
+              ) : null}
+              {onClearRoute && (
+                <button
+                  onClick={onClearRoute}
+                  className="btn-transit"
+                  style={{
+                    padding: '0.35rem 0.75rem',
+                    fontSize: '0.75rem',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#fca5a5'
+                  }}
+                  title="Clear selected route stations"
+                >
+                  ✕ Clear Selection
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -164,12 +187,15 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
                   const isOrigin = origin && origin.stationId === st.stationId;
                   const isDest = destination && destination.stationId === st.stationId;
                   const hasInterchange = st.interchange && st.interchange !== 'None';
+                  const isDifferentLine = origin && !destination && st.lineCode !== origin.lineCode;
 
                   let ringStyle = {};
                   if (isOrigin) {
                     ringStyle = { borderColor: '#10b981', boxShadow: '0 0 15px #10b981', background: 'rgba(16,185,129,0.25)' };
                   } else if (isDest) {
                     ringStyle = { borderColor: '#ef4444', boxShadow: '0 0 15px #ef4444', background: 'rgba(239,68,68,0.25)' };
+                  } else if (isDifferentLine) {
+                    ringStyle = { opacity: 0.35, filter: 'grayscale(60%)', cursor: 'not-allowed' };
                   }
 
                   return (
@@ -178,9 +204,10 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
                       onClick={() => onSelectStation(st)}
                       onMouseEnter={() => setHoveredStation(st)}
                       onMouseLeave={() => setHoveredStation(null)}
+                      title={isDifferentLine ? `Cannot select: Different line from origin (${origin.lineName || origin.lineCode})` : st.interchange || st.name}
                       style={{
                         zIndex: 1,
-                        cursor: 'pointer',
+                        cursor: isDifferentLine ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',

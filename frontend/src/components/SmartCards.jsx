@@ -14,7 +14,7 @@ export function SmartCards({ cards, onRefreshCards, addToast }) {
   const [cardType, setCardType] = useState('Regular Card');
   const [initialBalance, setInitialBalance] = useState(100);
   const [college, setCollege] = useState('VJTI Mumbai');
-  const [rollNo, setRollNo] = useState('MU-2024-042');
+  const [rollNo, setRollNo] = useState('ST-2024-042');
 
   const handleIssueCard = async (e) => {
     e.preventDefault();

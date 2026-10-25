@@ -24,6 +24,7 @@ public class MetroSystemTest {
 
         testFareSlabs();
         testInvalidStationSameOriginDestination();
+        testInvalidStationDifferentLines();
         testStudentCardPolymorphicDiscount();
         testRegularCardLoyaltyDiscount();
         testCardRecharge();
@@ -66,6 +67,19 @@ public class MetroSystemTest {
             caught = true;
         }
         assertTrue("Custom Exception: InvalidStationException thrown on same origin & destination", caught);
+    }
+
+    private static void testInvalidStationDifferentLines() {
+        FareCalculator calc = new FareCalculator();
+        Station s1 = new Station(1, "Versova", 0.0, "LINE_1", "Line 1 (Blue)", "None");
+        Station s2 = new Station(101, "Dahisar East", 0.0, "LINE_2A", "Line 2A (Yellow)", "None");
+        boolean caught = false;
+        try {
+            calc.calculateDistance(s1, s2);
+        } catch (InvalidStationException e) {
+            caught = true;
+        }
+        assertTrue("Custom Exception: InvalidStationException thrown when selecting stations from different lines", caught);
     }
 
     private static void testStudentCardPolymorphicDiscount() {

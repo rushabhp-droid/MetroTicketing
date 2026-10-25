@@ -1,7 +1,7 @@
 package com.mumbaimetro.model;
 
 /**
- * Concession smart card for Mumbai University & college students
+ * Concession smart card for college and university students
  * Demonstrates: Inheritance, Super constructor invocation, Method Overriding
  */
 public class StudentCard extends Card {
@@ -15,7 +15,7 @@ public class StudentCard extends Card {
     public StudentCard(String cardId, String holderName, String contactNumber, double initialBalance,
                        String collegeName, String studentRollNo) {
         super(cardId, holderName, contactNumber, initialBalance);
-        this.collegeName = (collegeName != null && !collegeName.trim().isEmpty()) ? collegeName.trim() : "Mumbai University";
+        this.collegeName = (collegeName != null && !collegeName.trim().isEmpty()) ? collegeName.trim() : "General College";
         this.studentRollNo = studentRollNo != null ? studentRollNo.trim() : "N/A";
     }
 

@@ -79,16 +79,26 @@ export default function App() {
     if (!origin || (origin && destination)) {
       setOrigin(station);
       setDestination(null);
-      addToast(`Selected ${station.name} as Origin`, 'info');
+      addToast(`Selected ${station.name} (${station.lineName || station.lineCode}) as Origin`, 'info');
     } else {
       if (origin.stationId === station.stationId) {
         addToast('Origin and Destination cannot be the same station', 'error');
+        return;
+      }
+      if (origin.lineCode !== station.lineCode) {
+        addToast(`Cannot select stations from two different lines! Origin is on ${origin.lineName || origin.lineCode}. Please select a destination on the same line.`, 'error');
         return;
       }
       setDestination(station);
       addToast(`Selected ${station.name} as Destination. Ready to book!`, 'success');
       setActiveTab('tickets');
     }
+  };
+
+  const handleClearRoute = () => {
+    setOrigin(null);
+    setDestination(null);
+    addToast('Route selection cleared', 'info');
   };
 
   return (
@@ -186,6 +196,7 @@ export default function App() {
                 origin={origin}
                 destination={destination}
                 onSelectStation={handleMapSelectStation}
+                onClearRoute={handleClearRoute}
               />
             )}
 
@@ -246,7 +257,7 @@ export default function App() {
       }}>
         <div>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System</div>
         <div style={{ marginTop: '0.25rem', color: 'var(--text-muted)' }}>
-          Mumbai University SE Sem 3 OOPM Mini Project • Full-Stack React + Spring Boot 3.3.5 Web Architecture
+          SE Sem 3 OOPM Mini Project • Full-Stack React + Spring Boot 3.3.5 Web Architecture
         </div>
       </footer>
 

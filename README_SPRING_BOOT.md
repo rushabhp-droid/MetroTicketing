@@ -51,4 +51,4 @@ Once running, navigate to:
 2. **Zero External QR Dependencies:** The pure-Java `QRCodeGenerator` encodes data using Galois Field GF(256) Reed-Solomon math and streams it directly to browser clients as a Base64 data URI string (`data:image/png;base64,...`).
 3. **Spring Managed Multithreading:** `PeakHourMonitorThread` runs as a background worker daemon bean defined in `MetroConfig.java`, monitoring peak hours and applying fare surcharges without interfering with HTTP request handling.
 4. **SQLite RDBMS:** Direct JDBC integration with `mumbai_metro.db` supporting all 90 stations across 7 lines, normalized tables, foreign keys, transactions, and live SQL execution.
-5. **Academic OOP Alignment:** 100% of the Mumbai University SE Sem 3 OOPM syllabus requirements (Inheritance, Polymorphism, Interfaces, Custom Exceptions, Multithreading, Synchronization, Collections, and JDBC) are preserved in the domain layer.
+5. **Academic OOP Alignment:** 100% of the SE Sem 3 OOPM syllabus requirements (Inheritance, Polymorphism, Interfaces, Custom Exceptions, Multithreading, Synchronization, Collections, and JDBC) are preserved in the domain layer.

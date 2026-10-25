@@ -180,10 +180,37 @@
     </main>
 
     <footer class="footer">
-        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System | Mumbai University SE Sem 3 OOPM Mini Project</p>
+        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System</p>
         <p style="margin-top: 0.5rem; font-size: 0.8rem;">Migrated from Java Swing to Spring Boot Web Framework</p>
     </footer>
     <script>
+        const sourceSelect = document.getElementById('source');
+        const destSelect = document.getElementById('destination');
+
+        function updateDestOptions() {
+            const selectedOpt = sourceSelect.selectedOptions[0];
+            const line = selectedOpt ? selectedOpt.getAttribute('data-line') : null;
+            const destOpts = destSelect.querySelectorAll('option');
+            
+            destOpts.forEach(opt => {
+                if (!opt.value) return; // Keep placeholder
+                if (!line || opt.getAttribute('data-line') === line) {
+                    opt.style.display = '';
+                    opt.disabled = false;
+                } else {
+                    opt.style.display = 'none';
+                    opt.disabled = true;
+                }
+            });
+
+            // If current destination is on a different line, reset it
+            if (destSelect.selectedOptions[0] && destSelect.selectedOptions[0].disabled) {
+                destSelect.value = '';
+            }
+        }
+
+        sourceSelect.addEventListener('change', updateDestOptions);
+
         function filterLine(lineCode) {
             ['source', 'destination'].forEach(id => {
                 const select = document.getElementById(id);
@@ -192,12 +219,29 @@
                     if (!opt.value) return; // Keep placeholder
                     if (lineCode === 'ALL' || opt.getAttribute('data-line') === lineCode) {
                         opt.style.display = '';
+                        opt.disabled = false;
                     } else {
                         opt.style.display = 'none';
+                        opt.disabled = true;
                     }
                 });
-                if (select.selectedOptions[0] && select.selectedOptions[0].style.display === 'none') {
+                if (select.selectedOptions[0] && select.selectedOptions[0].disabled) {
                     select.value = '';
+                }
+            });
+            if (lineCode !== 'ALL') {
+                updateDestOptions();
+            }
+        }
+
+        const ticketForm = document.querySelector('form[action*="/tickets/book"]');
+        if (ticketForm) {
+            ticketForm.addEventListener('submit', function(e) {
+                const srcOpt = sourceSelect.selectedOptions[0];
+                const dstOpt = destSelect.selectedOptions[0];
+                if (srcOpt && dstOpt && srcOpt.getAttribute('data-line') !== dstOpt.getAttribute('data-line')) {
+                    e.preventDefault();
+                    alert('Cannot select stations from two different lines! Origin and Destination must be on the same Metro line.');
                 }
             });
         }

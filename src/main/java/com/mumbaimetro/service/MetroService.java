@@ -194,6 +194,10 @@ public class MetroService {
         if (origin.equals(exitStation)) {
             throw new InvalidStationException("Same station tap-out (" + origin.getName() + ")! Minimum same-station fee applies.");
         }
+        if (!origin.getLineCode().equals(exitStation.getLineCode())) {
+            throw new InvalidStationException("Cannot select stations from two different lines (" 
+                    + origin.getLineName() + " and " + exitStation.getLineName() + ")! Exit station must be on the same Metro line as entry.");
+        }
 
         double distance = fareCalculator.calculateDistance(origin, exitStation);
         double baseFare = fareCalculator.calculateBaseFare(distance);

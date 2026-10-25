@@ -1,5 +1,5 @@
 # Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System
-### Academic Mini-Project | Mumbai University (SE Semester 3 - OOPM)
+### Academic Mini-Project | SE Semester 3 - OOPM
 #### Modernized Spring Boot 3.3.5 Web Application + SQLite Relational Database (RDBMS)
 
 ---
@@ -11,7 +11,7 @@ The project features a decoupled architecture: a high-performance **Spring Boot 
 
 ---
 
-## 🎯 Mumbai University OOPM Syllabus Mapping
+## 🎯 OOPM Syllabus Mapping
 
 | Syllabus Requirement | Implementation in Code | Exact Source File Reference |
 | :--- | :--- | :--- |
@@ -194,6 +194,7 @@ Run the academic test suite at any time:
 =========================================================
  [PASS] Fare Slabs Calculation (0-3km: ₹10, 3-6km: ₹20, 6-9km: ₹30, 9-12km: ₹40)
  [PASS] Custom Exception: InvalidStationException thrown on same origin & destination
+ [PASS] Custom Exception: InvalidStationException thrown when selecting stations from different lines
  [PASS] Polymorphic Concession: StudentCard gives 20% discount (₹8 on ₹40)
  [PASS] Polymorphic Concession: RegularCard loyalty discount on high fares
  [PASS] Thread-Safe Recharge: Balance increased to ₹250.0
@@ -202,25 +203,38 @@ Run the academic test suite at any time:
  [PASS] QR Code Engine: Generates valid scannable BufferedImage & matrix without external libs
  [PASS] Relational Database: SQLite connected, schema created & 90 stations across 7 lines verified via SQL
 ---------------------------------------------------------
- Test Results: 9 / 9 PASSED (100% Success Rate)
+ Test Results: 10 / 10 PASSED (100% Success Rate)
 =========================================================
 ```
 
 ---
 
-## 🎤 Top Viva Questions & Prepared Answers (Academic & Spring Boot)
+## 📚 Comprehensive Feature Documentation
 
-**Q1. Why did you migrate the project to Spring Boot, and does it satisfy Mumbai University OOPM syllabus?**
-> *Answer:* Java Swing is desktop-only, platform-dependent, and prone to display driver inconsistencies. Spring Boot modernizes the project into an enterprise Web MVC application accessible from any browser or mobile device. Crucially, **100% of the Mumbai University OOPM requirements are preserved**—the domain entities, polymorphic inheritance, custom exceptions, interfaces, multithreading, and JDBC relational database layer remain identical in core Java, with Spring MVC acting as the presentation orchestrator.
+Extensive documentation for each architectural component and system feature is organized in the [`docs/`](file:///home/rushabhp/Projects/CNN/docs) directory:
 
-**Q2. How is Multithreading implemented in a Spring Boot environment?**
-> *Answer:* `PeakHourMonitorThread` extends `java.lang.Thread` as a background worker daemon. In `MetroConfig.java`, it is defined as a Spring `@Bean` with `destroyMethod = "interrupt"`. When Spring Boot initializes, the thread starts automatically and runs concurrently in the background, monitoring peak hours and adjusting surcharges without blocking web HTTP request threads.
+- 🏛️ [**System Architecture & Web MVC Design**](docs/architecture.md): Layered architecture, REST APIs, Inversion of Control, and sequence diagrams.
+- 🚇 [**Metro Network & Same-Line Station Routing**](docs/metro_network.md): 7 corridors, 90 stations, distance tracking, and **same-line station selection enforcement**.
+- 🎫 [**QR Ticketing & Dynamic Fare Engine**](docs/ticketing_and_fares.md): Distance fare slabs, peak rush surcharges, and **pure-Java Reed-Solomon $GF(2^8)$ QR code generator**.
+- 💳 [**Smart Card System & Polymorphism**](docs/smart_cards.md): Polymorphic card hierarchy (`RegularCard`, `StudentCard`, `TouristPassCard`), `Payable` interface, and thread safety.
+- 🚪 [**AFC Turnstile Gate Simulator**](docs/afc_turnstile.md): Motorized barrier flap physics, RFID sensor simulation, two-phase tap-in/tap-out state machine, and line clearance.
+- ⏱️ [**Multithreading & Background Daemons**](docs/multithreading.md): `PeakHourMonitorThread` daemon, Spring bean lifecycle integration, and concurrency control.
+- 🗄️ [**Relational Database & SQL Console**](docs/database_rdbms.md): SQLite schema DDL, foreign key relationships, JDBC prepared statements, and live SQL execution console.
+- 📊 [**Analytics Dashboard & Traffic Insights**](docs/analytics_dashboard.md): Gross revenue tracking, station footfall counters, passenger volume metrics, and transaction audit trails.
 
-**Q3. How is the QR Code rendered on the web without saving image files to disk?**
-> *Answer:* Our custom pure-Java `QRCodeGenerator` produces a `BufferedImage` via Reed-Solomon GF(256) algorithms. In `QRCodeGenerator.generateQRCodeBase64()`, the image bytes are written to an in-memory `ByteArrayOutputStream` and converted to a **Base64-encoded string**. In Thymeleaf, this is rendered directly as an inline data URI: `<img src="data:image/png;base64,...">`, ensuring zero disk I/O and zero temporary file accumulation.
+---
 
-**Q4. How does the application handle custom exceptions like `InsufficientBalanceException` during web requests?**
-> *Answer:* The controller methods (e.g., `CardController.tapOut()`) wrap service calls in a `try-catch` block. When a business rule is violated (such as a passenger tapping out without enough balance), our custom exception (`InsufficientBalanceException` or `MinimumBalanceException`) is caught, and its descriptive message is passed to the view via Spring's `RedirectAttributes.addFlashAttribute("error", ...)`, displaying a user-friendly alert on the page.
+## 🎤 Viva Questions & Comprehensive Answers Guide
 
-**Q5. Explain the SQLite Relational Database integration and table constraints.**
-> *Answer:* We use an embedded SQLite database (`mumbai_metro.db`) accessed via JDBC. It contains 4 normalized tables: `stations`, `cards`, `tickets`, and `transactions`. Foreign keys link tickets to origin and destination station IDs. Interchange stations (such as Marol Naka on Lines 1 and 3) are supported using a composite unique constraint `UNIQUE(line_code, name)`.
+The complete collection of viva questions, conceptual deep dives, and prepared model answers has been moved to its own dedicated guide in the documentation directory:
+
+👉 **Read the Full Viva Guide:** [**`docs/viva_questions.md`**](docs/viva_questions.md)
+
+### Quick Overview of Covered Viva Topics:
+1. **Core OOP:** Abstraction, inheritance, runtime dynamic method dispatch, compile-time method overloading, interface segregation, and encapsulation invariants.
+2. **Spring Boot MVC:** Web migration advantages, inversion of control (IoC), dependency injection, REST API design, and Thymeleaf flash attributes.
+3. **Multithreading:** `PeakHourMonitorThread` background worker daemon, Spring bean lifecycle (`destroyMethod = "interrupt"`), memory visibility (`volatile`), and thread synchronization (`synchronized`).
+4. **Relational Database (RDBMS):** SQLite embedded architecture, foreign key integrity, ACID transactions, and parameterized SQL injection prevention.
+5. **Pure-Java QR Math:** Galois Field $GF(2^8)$ arithmetic, Reed-Solomon polynomial division, matrix masking, and zero-disk Base64 data streaming.
+6. **Station Isolation:** Real-world transit justification and technical enforcement of the same-line station selection constraint.
+7. **Custom Exceptions:** Hierarchy and handling of `InvalidStationException`, `InsufficientBalanceException`, `MinimumBalanceException`, and `CardBlockedException`.

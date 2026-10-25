@@ -14,6 +14,24 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
 
   const selectedCard = cards.find(c => c.cardId === selectedCardId);
 
+  // Available exit stations: if card is in transit, only allow stations on the tap-in line
+  const exitStations = React.useMemo(() => {
+    if (selectedCard?.inTransit && selectedCard.tapInStation) {
+      return stations.filter(s => s.lineCode === selectedCard.tapInStation.lineCode && s.stationId !== selectedCard.tapInStation.stationId);
+    }
+    return stations;
+  }, [selectedCard, stations]);
+
+  // Adjust exitStation if needed when card or exitStations change
+  React.useEffect(() => {
+    if (selectedCard?.inTransit && selectedCard.tapInStation) {
+      const match = exitStations.some(s => s.stationId === Number(exitStation));
+      if (!match && exitStations.length > 0) {
+        setExitStation(exitStations[0].stationId);
+      }
+    }
+  }, [selectedCardId, exitStations]);
+
   // Trigger Tap-In
   const handleTapIn = async () => {
     if (!selectedCardId || !entryStation) {
@@ -56,6 +74,13 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
     if (!selectedCardId || !exitStation) {
       addToast('Please choose a card and exit station', 'error');
       return;
+    }
+    if (selectedCard?.inTransit && selectedCard.tapInStation) {
+      const exitSt = stations.find(s => s.stationId === Number(exitStation));
+      if (exitSt && exitSt.lineCode !== selectedCard.tapInStation.lineCode) {
+        addToast(`Cannot select station from different line! Card entered on ${selectedCard.tapInStation.lineName}.`, 'error');
+        return;
+      }
     }
     setIsProcessing(true);
     try {
@@ -275,7 +300,7 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
                 className="select-transit"
                 style={{ flex: 2 }}
               >
-                {stations.map(st => (
+                {exitStations.map(st => (
                   <option key={st.stationId} value={st.stationId}>
                     {st.name} ({st.lineName})
                   </option>

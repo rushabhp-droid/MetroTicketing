@@ -37,6 +37,14 @@ public class TicketController {
         try {
             Station src = DataStore.getInstance().getStationByName(sourceName);
             Station dest = DataStore.getInstance().getStationByName(destName);
+            if (src == null || dest == null) {
+                redirectAttributes.addFlashAttribute("error", "Please select valid origin and destination stations.");
+                return "redirect:/tickets";
+            }
+            if (!src.getLineCode().equals(dest.getLineCode())) {
+                redirectAttributes.addFlashAttribute("error", "Cannot select stations from two different lines! Both stations must be on the same Metro line.");
+                return "redirect:/tickets";
+            }
             Ticket ticket = metroService.bookSingleJourneyToken(src, dest, passengers, isReturn, isPeakHour);
             redirectAttributes.addFlashAttribute("success", "Ticket booked successfully!");
             redirectAttributes.addFlashAttribute("receipt", ticket.generateReceipt());

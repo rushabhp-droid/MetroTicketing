@@ -2,7 +2,7 @@
 # ==============================================================================
 # Mumbai Metro Smart Card & Fare Ticketing System
 # Spring Boot Web Application - Build & Execution Script
-# Mumbai University - SE Semester 3 (OOPM / Mini Project 1A)
+# SE Semester 3 (OOPM / Mini Project 1A)
 # ==============================================================================
 
 set -e

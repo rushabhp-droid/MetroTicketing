@@ -2,7 +2,7 @@
 REM ==============================================================================
 REM Mumbai Metro Smart Card & Fare Ticketing System
 REM Spring Boot Web Application - Windows Batch Build & Execution Script
-REM Mumbai University - SE Semester 3 (OOPM / Mini Project 1A)
+REM SE Semester 3 (OOPM / Mini Project 1A)
 REM ==============================================================================
 
 setlocal enabledelayedexpansion

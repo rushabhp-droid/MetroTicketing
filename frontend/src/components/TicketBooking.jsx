@@ -9,24 +9,108 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
   const [returnTrip, setReturnTrip] = useState(false);
   const [peakHour, setPeakHour] = useState(false);
 
+  // Derive active stations and line
+  const sourceStation = stations.find(s => s.stationId === Number(sourceId)) || stations[0];
+  const activeLine = sourceStation?.lineCode || 'LINE_1';
+  const destStation = stations.find(s => s.stationId === Number(destId));
+
+  // Available lines across all stations
+  const availableLines = React.useMemo(() => {
+    const map = new Map();
+    stations.forEach(s => {
+      if (!map.has(s.lineCode)) {
+        map.set(s.lineCode, s.lineName);
+      }
+    });
+    return Array.from(map.entries());
+  }, [stations]);
+
+  // Stations belonging to the active line
+  const lineStations = stations.filter(s => s.lineCode === activeLine);
+  // Allowed destinations must be on the same line and cannot be the origin
+  const destOptions = lineStations.filter(s => s.stationId !== Number(sourceId));
+
   // Live Fare Preview State
   const [farePreview, setFarePreview] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [bookedTicket, setBookedTicket] = useState(null);
   const [isBooking, setIsBooking] = useState(false);
 
+  // Line change handler
+  const handleLineChange = (lineCode) => {
+    const stationsOnLine = stations.filter(s => s.lineCode === lineCode);
+    if (stationsOnLine.length > 0) {
+      const newSrc = stationsOnLine[0];
+      const newDst = stationsOnLine.length > 1 ? stationsOnLine[stationsOnLine.length - 1] : stationsOnLine[0];
+      setSourceId(newSrc.stationId);
+      setOrigin(newSrc);
+      setDestId(newDst.stationId);
+      setDestination(newDst);
+    }
+  };
+
+  // Origin change handler
+  const handleSourceChange = (val) => {
+    const newSrcId = Number(val);
+    const newSrc = stations.find(s => s.stationId === newSrcId);
+    if (!newSrc) return;
+    setSourceId(newSrcId);
+    setOrigin(newSrc);
+
+    // If current destination is not on the same line or is the same station, update destination
+    const currDst = stations.find(s => s.stationId === Number(destId));
+    if (!currDst || currDst.lineCode !== newSrc.lineCode || currDst.stationId === newSrc.stationId) {
+      const candidates = stations.filter(s => s.lineCode === newSrc.lineCode && s.stationId !== newSrc.stationId);
+      if (candidates.length > 0) {
+        const nextDst = candidates[candidates.length - 1];
+        setDestId(nextDst.stationId);
+        setDestination(nextDst);
+      }
+    }
+  };
+
+  // Destination change handler
+  const handleDestChange = (val) => {
+    const newDstId = Number(val);
+    const newDst = stations.find(s => s.stationId === newDstId);
+    if (!newDst) return;
+    setDestId(newDstId);
+    setDestination(newDst);
+  };
+
   // Sync with prop changes from Interactive Map clicks
   useEffect(() => {
-    if (origin) setSourceId(origin.stationId);
+    if (origin) {
+      setSourceId(origin.stationId);
+      if (destination && destination.lineCode !== origin.lineCode) {
+        const candidates = stations.filter(s => s.lineCode === origin.lineCode && s.stationId !== origin.stationId);
+        if (candidates.length > 0) {
+          const fallback = candidates[candidates.length - 1];
+          setDestId(fallback.stationId);
+          setDestination(fallback);
+        }
+      }
+    }
   }, [origin]);
 
   useEffect(() => {
-    if (destination) setDestId(destination.stationId);
+    if (destination) {
+      if (origin && destination.lineCode !== origin.lineCode) {
+        return;
+      }
+      setDestId(destination.stationId);
+    }
   }, [destination]);
 
   // Fetch Live Fare Preview
   useEffect(() => {
     if (!sourceId || !destId || sourceId === destId) {
+      setFarePreview(null);
+      return;
+    }
+    const srcSt = stations.find(s => s.stationId === Number(sourceId));
+    const dstSt = stations.find(s => s.stationId === Number(destId));
+    if (!srcSt || !dstSt || srcSt.lineCode !== dstSt.lineCode) {
       setFarePreview(null);
       return;
     }
@@ -50,12 +134,22 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [sourceId, destId, passengers, returnTrip, peakHour]);
+  }, [sourceId, destId, passengers, returnTrip, peakHour, stations]);
 
   const handleBookTicket = async (e) => {
     e.preventDefault();
+    const srcStation = stations.find(s => s.stationId === Number(sourceId));
+    const dstStation = stations.find(s => s.stationId === Number(destId));
+    if (!srcStation || !dstStation) {
+      addToast('Please select valid Origin and Destination stations!', 'error');
+      return;
+    }
     if (sourceId === destId) {
       addToast('Origin and Destination stations cannot be the same!', 'error');
+      return;
+    }
+    if (srcStation.lineCode !== dstStation.lineCode) {
+      addToast('Cannot select stations from two different lines! Origin and Destination must be on the same Metro line.', 'error');
       return;
     }
     setIsBooking(true);
@@ -112,6 +206,24 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
           </div>
 
           <form onSubmit={handleBookTicket} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Metro Line Selector */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                Metro Line (Both stations must be on the same line)
+              </label>
+              <select
+                value={activeLine}
+                onChange={e => handleLineChange(e.target.value)}
+                className="select-transit"
+              >
+                {availableLines.map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Origin Station */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
@@ -119,17 +231,13 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
               </label>
               <select
                 value={sourceId}
-                onChange={e => {
-                  setSourceId(Number(e.target.value));
-                  const st = stations.find(s => s.stationId === Number(e.target.value));
-                  if (st) setOrigin(st);
-                }}
+                onChange={e => handleSourceChange(e.target.value)}
                 className="select-transit"
                 required
               >
-                {stations.map(st => (
+                {lineStations.map(st => (
                   <option key={st.stationId} value={st.stationId}>
-                    {st.name} ({st.lineName})
+                    {st.name} ({st.distanceKm.toFixed(1)} km) {st.interchange !== 'None' ? `⇄ ${st.interchange}` : ''}
                   </option>
                 ))}
               </select>
@@ -138,21 +246,17 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
             {/* Destination Station */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                Destination Station
+                Destination Station (Same Line: {sourceStation?.lineName || activeLine})
               </label>
               <select
                 value={destId}
-                onChange={e => {
-                  setDestId(Number(e.target.value));
-                  const st = stations.find(s => s.stationId === Number(e.target.value));
-                  if (st) setDestination(st);
-                }}
+                onChange={e => handleDestChange(e.target.value)}
                 className="select-transit"
                 required
               >
-                {stations.map(st => (
+                {destOptions.map(st => (
                   <option key={st.stationId} value={st.stationId}>
-                    {st.name} ({st.lineName})
+                    {st.name} ({st.distanceKm.toFixed(1)} km) {st.interchange !== 'None' ? `⇄ ${st.interchange}` : ''}
                   </option>
                 ))}
               </select>

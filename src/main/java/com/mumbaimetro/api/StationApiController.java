@@ -47,6 +47,9 @@ public class StationApiController {
             if (src == null || dst == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Invalid station identifier"));
             }
+            if (!src.getLineCode().equals(dst.getLineCode())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Cannot select stations from two different lines. Both stations must be on the same Metro line."));
+            }
             FareCalculator calc = metroService.getFareCalculator();
             double distance = calc.calculateDistance(src, dst);
             double baseUnit = calc.calculateBaseFare(distance);
