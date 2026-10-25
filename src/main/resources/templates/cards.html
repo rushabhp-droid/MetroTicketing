@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cards - Mumbai Metro Ticketing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand"><i class="bi bi-train-front"></i><span>MUMBAI METRO ONE</span></div>
+            <ul class="nav-menu">
+                <li><a th:href="@{/dashboard}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a th:href="@{/tickets}" class="nav-link"><i class="bi bi-ticket-perforated"></i> QR Tickets</a></li>
+                <li><a th:href="@{/cards}" class="nav-link active"><i class="bi bi-credit-card"></i> Smart Cards</a></li>
+                <li><a th:href="@{/admin}" class="nav-link"><i class="bi bi-database"></i> Admin & RDBMS</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="bi bi-credit-card"></i> Smart Card Management & AFC Gates</h1>
+                <p>Issue Polymorphic Smart Cards, Recharge Balance, and Simulate Entry / Exit Gate Taps</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <div class="grid-2">
+                <!-- Issue New Card Form -->
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-person-plus-fill"></i> Issue New Smart Card</div>
+                    <div class="card-body">
+                        <form th:action="@{/cards/issue}" method="post">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="holderName">Passenger Full Name</label>
+                                    <input type="text" class="form-control" id="holderName" name="holderName" placeholder="e.g. Rahul Sharma" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="contact">Contact Phone</label>
+                                    <input type="tel" class="form-control" id="contact" name="contact" placeholder="98XXXXXXXX" required />
+                                </div>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="type">Card Category (Polymorphic)</label>
+                                    <select class="form-select" id="type" name="type" onchange="toggleStudentFields(this.value)" required>
+                                        <option value="Regular Card">Regular Commuter Card</option>
+                                        <option value="Student Concession (20% OFF)">Student Pass (20% OFF)</option>
+                                        <option value="Tourist Pass (3-Day)">Tourist Pass (Unlimited)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="initialBalance">Initial Balance (₹)</label>
+                                    <input type="number" step="0.5" class="form-control" id="initialBalance" name="initialBalance" value="100.0" min="0" required />
+                                </div>
+                            </div>
+
+                            <!-- Student Specific Fields (Shown conditionally) -->
+                            <div id="studentFields" style="display: none; background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px dashed var(--border-color); margin-bottom: 1rem;">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="college">College / University</label>
+                                        <input type="text" class="form-control" id="college" name="college" placeholder="Mumbai University / VJTI" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="rollNo">Student Roll / ID No.</label>
+                                        <input type="text" class="form-control" id="rollNo" name="rollNo" placeholder="MU-2024-001" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="bi bi-check-lg"></i> Issue Card & Save to SQLite
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Card Operations: Recharge & Turnstile Gate Simulation -->
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-door-open-fill"></i> AFC Turnstile Gate & Kiosk Operations</div>
+                    <div class="card-body">
+                        <!-- Recharge Form -->
+                        <div style="margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-color);">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--navy-primary);">
+                                <i class="bi bi-wallet2"></i> Top-Up / Recharge Card Balance
+                            </h4>
+                            <form th:action="@{/cards/recharge}" method="post" style="display: flex; gap: 0.75rem;">
+                                <select class="form-select" name="cardId" style="flex: 2;" required>
+                                    <option value="" disabled selected>-- Select Smart Card --</option>
+                                    <option th:each="c : ${cards}" th:value="${c.cardId}" th:text="${c.cardId + ' - ' + c.holderName + ' (₹' + #numbers.formatDecimal(c.balance, 1, 2) + ')'}"></option>
+                                </select>
+                                <input type="number" step="10" min="10" name="amount" value="100" class="form-control" style="flex: 1;" placeholder="Amount" required />
+                                <button type="submit" class="btn btn-success" style="white-space: nowrap;">
+                                    <i class="bi bi-plus-circle"></i> Top-Up
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Line Filter for AFC Turnstiles -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <label class="form-label" style="font-size: 0.85rem;"><i class="bi bi-funnel-fill"></i> Filter Gate Stations by Line</label>
+                            <select class="form-select" id="gateLineFilter" onchange="filterGateStations(this.value)">
+                                <option value="ALL">All Metro Lines (90 Stations across 7 Lines)</option>
+                                <option th:each="line : ${lines}" th:value="${line.key}" th:text="${line.value}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Tap-In Gate Form -->
+                        <div style="margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-color);">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--accent-green);">
+                                <i class="bi bi-box-arrow-in-right"></i> Entry Turnstile Gate (Tap-In)
+                            </h4>
+                            <form th:action="@{/cards/tap-in}" method="post" style="display: flex; gap: 0.75rem;">
+                                <select class="form-select" name="cardId" style="flex: 1.5;" required>
+                                    <option value="" disabled selected>-- Card ID --</option>
+                                    <option th:each="c : ${cards}" th:value="${c.cardId}" th:text="${c.cardId + ' - ' + c.holderName}"></option>
+                                </select>
+                                <select class="form-select gate-station-select" name="station" style="flex: 2;" required>
+                                    <option value="" disabled selected>-- Entry Station --</option>
+                                    <option th:each="st : ${stations}" th:value="${st.stationId}" th:data-line="${st.lineCode}" th:text="${st.name + ' (' + st.lineName + (st.interchange != 'None' ? ' - ' + st.interchange : '') + ')'}"></option>
+                                </select>
+                                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                                    Tap-In
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tap-Out Gate Form -->
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--accent-red);">
+                                <i class="bi bi-box-arrow-right"></i> Exit Turnstile Gate (Tap-Out & Deduction)
+                            </h4>
+                            <form th:action="@{/cards/tap-out}" method="post">
+                                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                    <select class="form-select" name="cardId" style="flex: 1.5;" required>
+                                        <option value="" disabled selected>-- Card ID --</option>
+                                        <option th:each="c : ${cards}" th:value="${c.cardId}" th:text="${c.cardId + ' - ' + c.holderName}"></option>
+                                    </select>
+                                    <select class="form-select gate-station-select" name="station" style="flex: 2;" required>
+                                        <option value="" disabled selected>-- Exit Station --</option>
+                                        <option th:each="st : ${stations}" th:value="${st.stationId}" th:data-line="${st.lineCode}" th:text="${st.name + ' (' + st.lineName + (st.interchange != 'None' ? ' - ' + st.interchange : '') + ')'}"></option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="cardPeakHour" name="peakHour" value="true" />
+                                        <label for="cardPeakHour" style="font-size: 0.85rem;">Peak-Hour Surge (+₹5.00)</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger" style="white-space: nowrap;">
+                                        Tap-Out & Deduct
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Cards Table -->
+            <div class="card">
+                <div class="card-header"><i class="bi bi-credit-card-2-front-fill"></i> Issued Metro Smart Cards (SQLite Database)</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Card ID</th>
+                                    <th>Holder Name</th>
+                                    <th>Card Type</th>
+                                    <th>Balance</th>
+                                    <th>Transit Status</th>
+                                    <th>Account Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="card : ${cards}">
+                                    <td><code th:text="${card.cardId}"></code></td>
+                                    <td><strong th:text="${card.holderName}"></strong></td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${#strings.contains(card.cardType, 'Student') ? 'badge-purple' : (#strings.contains(card.cardType, 'Tourist') ? 'badge-teal' : 'badge-blue')}"
+                                              th:text="${card.cardType}">
+                                        </span>
+                                    </td>
+                                    <td><strong th:text="'₹' + ${#numbers.formatDecimal(card.balance, 1, 2)}"></strong></td>
+                                    <td>
+                                        <span th:if="${card.inTransit}" class="badge badge-orange">
+                                            <i class="bi bi-arrow-right-circle"></i> In Transit (at <span th:text="${card.tapInStation.name}"></span>)
+                                        </span>
+                                        <span th:unless="${card.inTransit}" class="badge badge-green">
+                                            <i class="bi bi-check-circle"></i> Idle
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${card.blocked ? 'badge-red' : 'badge-green'}"
+                                              th:text="${card.blocked ? 'BLOCKED' : 'ACTIVE'}">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{/cards/toggle-block}" method="post" style="display: inline;">
+                                            <input type="hidden" name="cardId" th:value="${card.cardId}" />
+                                            <button type="submit" class="btn btn-sm" th:classappend="${card.blocked ? 'btn-success' : 'btn-outline'}"
+                                                    th:text="${card.blocked ? 'Unblock' : 'Block'}">
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System | Mumbai University SE Sem 3 OOPM Mini Project</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Migrated from Java Swing to Spring Boot Web Framework</p>
+    </footer>
+
+    <script>
+        function toggleStudentFields(type) {
+            const studentFields = document.getElementById('studentFields');
+            if (type.includes('Student')) {
+                studentFields.style.display = 'block';
+            } else {
+                studentFields.style.display = 'none';
+            }
+        }
+
+        function filterGateStations(lineCode) {
+            document.querySelectorAll('.gate-station-select').forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (!opt.value) return;
+                    if (lineCode === 'ALL' || opt.getAttribute('data-line') === lineCode) {
+                        opt.style.display = '';
+                    } else {
+                        opt.style.display = 'none';
+                    }
+                });
+                if (select.selectedOptions[0] && select.selectedOptions[0].style.display === 'none') {
+                    select.value = '';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

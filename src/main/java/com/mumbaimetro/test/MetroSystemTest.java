@@ -136,12 +136,12 @@ public class MetroSystemTest {
             com.mumbaimetro.data.MetroDatabaseManager.RawQueryResult res =
                     com.mumbaimetro.data.MetroDatabaseManager.executeRawQuery("SELECT COUNT(*) FROM stations;");
 
-            pass = (allStations != null && allStations.size() == 62 &&
+            pass = (allStations != null && allStations.size() == 90 &&
                     line1Stations != null && line1Stations.size() == 12 &&
                     res != null && res.rowCount == 1);
         } catch (Exception e) {
             System.err.println("Database Test Error: " + e.getMessage());
         }
-        assertTrue("Relational Database: SQLite connected, schema created & 62 stations across 4 lines verified via SQL", pass);
+        assertTrue("Relational Database: SQLite connected, schema created & 90 stations across 7 lines verified via SQL", pass);
     }
 }

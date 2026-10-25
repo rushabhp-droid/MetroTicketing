@@ -10,7 +10,8 @@ import java.util.Map;
 
 /**
  * Repository layer connecting business services directly to SQLite Relational Database.
- * Supports multi-line filtering across Line 1, Line 2A, Line 7, and Line 3.
+ * Supports multi-line filtering across all 7 operational Mumbai & Navi Mumbai Metro lines:
+ * Line 1, Line 2A, Line 7, Line 9, Line 3, Line 2B, and Navi Mumbai Line 1.
  */
 public class DataStore {
 
@@ -53,10 +54,26 @@ public class DataStore {
         return MetroDatabaseManager.getAvailableLines();
     }
 
-    public Station getStationByName(String name) {
-        if (name == null) return null;
+    public Station getStationById(int id) {
         for (Station s : getStations()) {
-            if (s.getName().equalsIgnoreCase(name.trim())) {
+            if (s.getStationId() == id) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    public Station getStationByName(String name) {
+        if (name == null || name.trim().isEmpty()) return null;
+        String trimmed = name.trim();
+        try {
+            int id = Integer.parseInt(trimmed);
+            Station byId = getStationById(id);
+            if (byId != null) return byId;
+        } catch (NumberFormatException ignored) {}
+
+        for (Station s : getStations()) {
+            if (s.getName().equalsIgnoreCase(trimmed)) {
                 return s;
             }
         }

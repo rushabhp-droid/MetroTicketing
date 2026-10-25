@@ -2,6 +2,9 @@ package com.mumbaimetro.qr;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.Base64;
+import javax.imageio.ImageIO;
 
 /**
  * A self-contained QR Code generator in pure Java (no external libraries).
@@ -179,6 +182,25 @@ public class QRCodeGenerator {
         }
 
         return image;
+    }
+
+    /**
+     * Generate Base64 encoded PNG data URI string of the QR Code.
+     * Useful for embedding in HTML/Thymeleaf web templates directly without writing to disk.
+     *
+     * @param text      the text to encode
+     * @param pixelSize module pixel scale factor
+     * @return Base64 data string (PNG format)
+     */
+    public static String generateQRCodeBase64(String text, int pixelSize) {
+        try {
+            BufferedImage img = generateQRImage(text, pixelSize);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img, "PNG", baos);
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /**

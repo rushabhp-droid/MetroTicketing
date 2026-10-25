@@ -8,3 +8,5 @@ QR_*.png
 .settings/
 .classpath
 .project
+frontend/node_modules/
+frontend/dist/

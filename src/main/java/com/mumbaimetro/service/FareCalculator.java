@@ -22,7 +22,62 @@ public class FareCalculator {
         if (src.equals(dest)) {
             throw new InvalidStationException("Origin and Destination cannot be the same station (" + src.getName() + ")!");
         }
-        return Math.abs(dest.getDistanceKm() - src.getDistanceKm());
+        if (src.getLineCode().equals(dest.getLineCode())) {
+            return Math.abs(dest.getDistanceKm() - src.getDistanceKm());
+        }
+        return calculateInterLineDistance(src, dest);
+    }
+
+    private double calculateInterLineDistance(Station src, Station dest) {
+        String l1 = src.getLineCode();
+        String l2 = dest.getLineCode();
+
+        // Line 1 <-> Line 2A (Interchange at DN Nagar / Andheri West)
+        if ((l1.equals("LINE_1") && l2.equals("LINE_2A")) || (l1.equals("LINE_2A") && l2.equals("LINE_1"))) {
+            Station s1 = l1.equals("LINE_1") ? src : dest;
+            Station s2 = l1.equals("LINE_1") ? dest : src;
+            return Math.max(1.0, Math.abs(s1.getDistanceKm() - 1.1) + Math.abs(s2.getDistanceKm() - 18.6));
+        }
+
+        // Line 1 <-> Line 7 (Interchange at WEH / Gundavali)
+        if ((l1.equals("LINE_1") && l2.equals("LINE_7")) || (l1.equals("LINE_7") && l2.equals("LINE_1"))) {
+            Station s1 = l1.equals("LINE_1") ? src : dest;
+            Station s2 = l1.equals("LINE_1") ? dest : src;
+            return Math.max(1.0, Math.abs(s1.getDistanceKm() - 4.8) + Math.abs(s2.getDistanceKm() - 16.5));
+        }
+
+        // Line 1 <-> Line 3 (Interchange at Marol Naka)
+        if ((l1.equals("LINE_1") && l2.equals("LINE_3")) || (l1.equals("LINE_3") && l2.equals("LINE_1"))) {
+            Station s1 = l1.equals("LINE_1") ? src : dest;
+            Station s2 = l1.equals("LINE_1") ? dest : src;
+            return Math.max(1.0, Math.abs(s1.getDistanceKm() - 8.3) + Math.abs(s2.getDistanceKm() - 4.2));
+        }
+
+        // Line 2A <-> Line 7 (Interchange at Dahisar East)
+        if ((l1.equals("LINE_2A") && l2.equals("LINE_7")) || (l1.equals("LINE_7") && l2.equals("LINE_2A"))) {
+            return Math.max(1.0, src.getDistanceKm() + dest.getDistanceKm());
+        }
+
+        // Line 7 <-> Line 9 (Interchange at Dahisar East)
+        if ((l1.equals("LINE_7") && l2.equals("LINE_9")) || (l1.equals("LINE_9") && l2.equals("LINE_7"))) {
+            return Math.max(1.0, src.getDistanceKm() + dest.getDistanceKm());
+        }
+
+        // Line 2A <-> Line 9 (Interchange at Dahisar East)
+        if ((l1.equals("LINE_2A") && l2.equals("LINE_9")) || (l1.equals("LINE_9") && l2.equals("LINE_2A"))) {
+            return Math.max(1.0, src.getDistanceKm() + dest.getDistanceKm());
+        }
+
+        // Line 3 <-> Line 7 (Interchange at Aarey JVLR)
+        if ((l1.equals("LINE_3") && l2.equals("LINE_7")) || (l1.equals("LINE_7") && l2.equals("LINE_3"))) {
+            Station s3 = l1.equals("LINE_3") ? src : dest;
+            Station s7 = l1.equals("LINE_7") ? src : dest;
+            return Math.max(1.0, s3.getDistanceKm() + Math.abs(s7.getDistanceKm() - 11.5));
+        }
+
+        // General multi-line transit estimate
+        double est = Math.abs(dest.getDistanceKm() - src.getDistanceKm()) + 4.5;
+        return Math.max(2.5, est);
     }
 
     /**

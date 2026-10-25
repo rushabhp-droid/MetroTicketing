@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Mumbai Metro Ticketing System'">Mumbai Metro Ticketing System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="bi bi-train-front"></i>
+                <span>MUMBAI METRO ONE</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a th:href="@{/dashboard}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a th:href="@{/tickets}" class="nav-link"><i class="bi bi-ticket-perforated"></i> QR Tickets</a></li>
+                <li><a th:href="@{/cards}" class="nav-link"><i class="bi bi-credit-card"></i> Smart Cards</a></li>
+                <li><a th:href="@{/admin}" class="nav-link"><i class="bi bi-database"></i> Admin & RDBMS</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div th:if="${success}" class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            </div>
+            <div th:replace="${content}"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System | Mumbai University SE Sem 3 OOPM Mini Project</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Migrated from Java Swing to Spring Boot Web Framework</p>
+    </footer>
+</body>
+</html>

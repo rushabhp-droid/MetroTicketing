@@ -32,9 +32,12 @@ public class Station implements Serializable, Comparable<Station> {
 
     private static String deriveLineCode(String lineName) {
         if (lineName == null) return "LINE_1";
+        if (lineName.contains("2B")) return "LINE_2B";
         if (lineName.contains("2A") || lineName.toLowerCase().contains("yellow")) return "LINE_2A";
+        if (lineName.contains("9")) return "LINE_9";
         if (lineName.contains("7") || lineName.toLowerCase().contains("red")) return "LINE_7";
         if (lineName.contains("3") || lineName.toLowerCase().contains("aqua")) return "LINE_3";
+        if (lineName.contains("NMM") || lineName.toLowerCase().contains("navi mumbai")) return "NMM_1";
         return "LINE_1";
     }
 

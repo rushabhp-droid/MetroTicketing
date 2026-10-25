@@ -50,6 +50,10 @@ public class Transaction implements Serializable {
         return referenceId;
     }
 
+    public String getRefId() {
+        return referenceId;
+    }
+
     public Type getType() {
         return type;
     }
@@ -67,6 +71,10 @@ public class Transaction implements Serializable {
     }
 
     public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getCreatedAt() {
         return timestamp;
     }
 

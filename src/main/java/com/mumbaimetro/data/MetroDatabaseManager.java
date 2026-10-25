@@ -10,11 +10,14 @@ import java.util.*;
  * Full Relational Database Management System using SQLite and JDBC.
  * Manages tables, constraints, foreign keys, prepared statements, and transactional integrity.
  *
- * Supports all 4 operational Mumbai Metro Lines:
+ * Supports all 7 operational Mumbai & Navi Mumbai Metro Lines:
  * - Line 1 (Blue Line: Versova - Ghatkopar)
  * - Line 2A (Yellow Line: Dahisar East - Andheri West)
  * - Line 7 (Red Line: Dahisar East - Gundavali)
- * - Line 3 (Aqua Line: Aarey JVLR - Cuffe Parade)
+ * - Line 9 (Red Extension: Dahisar East - Kashigaon)
+ * - Line 3 (Aqua Underground: Aarey JVLR - Cuffe Parade)
+ * - Line 2B (Yellow Extension: Mandale - Diamond Garden)
+ * - Navi Mumbai Line 1 (Belapur CBD - Pendhar)
  */
 public class MetroDatabaseManager {
 
@@ -136,9 +139,13 @@ public class MetroDatabaseManager {
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM stations")) {
 
-            // If stations table has less than 60 stations, re-seed all 4 lines
-            if (rs.next() && rs.getInt(1) < 60) {
+            // If stations table has less than 90 stations, re-seed all 7 lines
+            if (rs.next() && rs.getInt(1) < 90) {
+                // Ensure foreign key constraints do not block table refresh during schema update
+                stmt.execute("PRAGMA foreign_keys = OFF;");
                 stmt.execute("DELETE FROM stations;");
+                stmt.execute("PRAGMA foreign_keys = ON;");
+
                 String sql = "INSERT OR REPLACE INTO stations (id, name, line_code, line_name, distance_km, interchange) VALUES (?, ?, ?, ?, ?, ?)";
 
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -158,16 +165,16 @@ public class MetroDatabaseManager {
                         {12, "Ghatkopar", "LINE_1", "Line 1 (Blue)", 11.4, "Central Railway Local"},
 
                         // ── LINE 2A: YELLOW LINE (Dahisar East - Andheri West, 18.6 km, 17 Stations) ──
-                        {101, "Dahisar (East)", "LINE_2A", "Line 2A (Yellow)", 0.0, "Line 7 (Red)"},
+                        {101, "Dahisar (East)", "LINE_2A", "Line 2A (Yellow)", 0.0, "Line 7 (Red) & Line 9"},
                         {102, "Anand Nagar", "LINE_2A", "Line 2A (Yellow)", 1.4, "None"},
                         {103, "Kandarpada", "LINE_2A", "Line 2A (Yellow)", 2.7, "None"},
-                        {104, "Mandapeshwar", "LINE_2A", "Line 2A (Yellow)", 4.0, "None"},
-                        {105, "Eksar Road", "LINE_2A", "Line 2A (Yellow)", 5.2, "None"},
-                        {106, "Borivali (West)", "LINE_2A", "Line 2A (Yellow)", 6.5, "None"},
-                        {107, "Pahadi Eksar", "LINE_2A", "Line 2A (Yellow)", 7.8, "None"},
+                        {104, "Mandapeshwar - IC Colony", "LINE_2A", "Line 2A (Yellow)", 4.0, "None"},
+                        {105, "Eksar", "LINE_2A", "Line 2A (Yellow)", 5.2, "None"},
+                        {106, "Borivali (West)", "LINE_2A", "Line 2A (Yellow)", 6.5, "Western Railway Local"},
+                        {107, "Shimpoli", "LINE_2A", "Line 2A (Yellow)", 7.8, "None"},
                         {108, "Kandivali (West)", "LINE_2A", "Line 2A (Yellow)", 9.1, "None"},
-                        {109, "Dahanukar Wadi", "LINE_2A", "Line 2A (Yellow)", 10.4, "None"},
-                        {110, "Valnai Meeth Chowky", "LINE_2A", "Line 2A (Yellow)", 11.7, "None"},
+                        {109, "Dahanukarwadi", "LINE_2A", "Line 2A (Yellow)", 10.4, "None"},
+                        {110, "Valnai - Meeth Chowky", "LINE_2A", "Line 2A (Yellow)", 11.7, "None"},
                         {111, "Malad (West)", "LINE_2A", "Line 2A (Yellow)", 13.0, "None"},
                         {112, "Lower Malad", "LINE_2A", "Line 2A (Yellow)", 14.2, "None"},
                         {113, "Bangur Nagar", "LINE_2A", "Line 2A (Yellow)", 15.4, "None"},
@@ -177,41 +184,75 @@ public class MetroDatabaseManager {
                         {117, "Andheri (West) / D.N. Nagar", "LINE_2A", "Line 2A (Yellow)", 18.6, "Line 1 (Blue)"},
 
                         // ── LINE 7: RED LINE (Dahisar East - Gundavali, 16.5 km, 14 Stations) ──
-                        {201, "Dahisar (East)", "LINE_7", "Line 7 (Red)", 0.0, "Line 2A (Yellow)"},
+                        {201, "Dahisar (East)", "LINE_7", "Line 7 (Red)", 0.0, "Line 2A (Yellow) & Line 9"},
                         {202, "Ovaripada", "LINE_7", "Line 7 (Red)", 1.3, "None"},
-                        {203, "National Park", "LINE_7", "Line 7 (Red)", 2.6, "None"},
+                        {203, "Rashtriya Udyan", "LINE_7", "Line 7 (Red)", 2.6, "National Park"},
                         {204, "Devipada", "LINE_7", "Line 7 (Red)", 3.8, "None"},
                         {205, "Magathane", "LINE_7", "Line 7 (Red)", 5.1, "None"},
                         {206, "Poisar", "LINE_7", "Line 7 (Red)", 6.4, "None"},
-                        {207, "Akurli / Kandivali (E)", "LINE_7", "Line 7 (Red)", 7.6, "None"},
+                        {207, "Akurli", "LINE_7", "Line 7 (Red)", 7.6, "Kandivali East"},
                         {208, "Kurar", "LINE_7", "Line 7 (Red)", 8.9, "None"},
-                        {209, "Dindoshi", "LINE_7", "Line 7 (Red)", 10.2, "None"},
-                        {210, "Aarey Colony", "LINE_7", "Line 7 (Red)", 11.5, "None"},
+                        {209, "Dindoshi", "LINE_7", "Line 7 (Red)", 10.2, "Malad East"},
+                        {210, "Aarey", "LINE_7", "Line 7 (Red)", 11.5, "Line 3 (Aqua JVLR)"},
                         {211, "Goregaon (East)", "LINE_7", "Line 7 (Red)", 12.8, "None"},
-                        {212, "JVLR", "LINE_7", "Line 7 (Red)", 14.0, "Line 3 (Aqua)"},
-                        {213, "Shankarwadi", "LINE_7", "Line 7 (Red)", 15.2, "None"},
-                        {214, "Gundavali / Andheri (East)", "LINE_7", "Line 7 (Red)", 16.5, "Line 1 (Blue - WEH)"},
+                        {212, "Jogeshwari (East)", "LINE_7", "Line 7 (Red)", 14.0, "None"},
+                        {213, "Mogra", "LINE_7", "Line 7 (Red)", 15.2, "None"},
+                        {214, "Gundavali", "LINE_7", "Line 7 (Red)", 16.5, "Line 1 (Blue - WEH)"},
 
-                        // ── LINE 3: AQUA LINE (Aarey JVLR - Cuffe Parade, 33.5 km, 19 Stations) ──
-                        {301, "Aarey (JVLR)", "LINE_3", "Line 3 (Aqua)", 0.0, "Line 7 (Red)"},
-                        {302, "SEEPZ", "LINE_3", "Line 3 (Aqua)", 2.1, "None"},
-                        {303, "MIDC - Andheri", "LINE_3", "Line 3 (Aqua)", 3.8, "None"},
-                        {304, "Marol Naka", "LINE_3", "Line 3 (Aqua)", 5.4, "Line 1 (Blue)"},
-                        {305, "CSMIA Airport (T2)", "LINE_3", "Line 3 (Aqua)", 7.2, "International Terminal 2"},
-                        {306, "Sahar Road", "LINE_3", "Line 3 (Aqua)", 8.9, "None"},
-                        {307, "CSMIA Airport (T1)", "LINE_3", "Line 3 (Aqua)", 10.6, "Domestic Terminal 1"},
-                        {308, "Santacruz", "LINE_3", "Line 3 (Aqua)", 12.4, "Western Railway"},
-                        {309, "Bandra Colony", "LINE_3", "Line 3 (Aqua)", 14.5, "None"},
-                        {310, "BKC (Bandra Kurla Complex)", "LINE_3", "Line 3 (Aqua)", 16.8, "Bullet Train Interchange"},
-                        {311, "Dharavi", "LINE_3", "Line 3 (Aqua)", 18.5, "None"},
-                        {312, "Dadar Metro", "LINE_3", "Line 3 (Aqua)", 21.2, "Central & Western Local"},
-                        {313, "Siddhivinayak", "LINE_3", "Line 3 (Aqua)", 22.9, "None"},
-                        {314, "Worli", "LINE_3", "Line 3 (Aqua)", 24.8, "None"},
-                        {315, "Mahalaxmi", "LINE_3", "Line 3 (Aqua)", 27.1, "Western Railway Local"},
-                        {316, "Mumbai Central Metro", "LINE_3", "Line 3 (Aqua)", 28.6, "National Rail Outstation"},
-                        {317, "CSMT Metro", "LINE_3", "Line 3 (Aqua)", 31.2, "Central Railway Outstation"},
-                        {318, "Churchgate Metro", "LINE_3", "Line 3 (Aqua)", 32.4, "Western Railway Local"},
-                        {319, "Cuffe Parade", "LINE_3", "Line 3 (Aqua)", 33.5, "South Mumbai Terminal"}
+                        // ── LINE 9: RED EXTENSION (Dahisar East - Kashigaon, 6.2 km, 4 Stations) ──
+                        {251, "Dahisar (East)", "LINE_9", "Line 9 (Red Extension)", 0.0, "Line 2A (Yellow) & Line 7 (Red)"},
+                        {252, "Pandurangwadi", "LINE_9", "Line 9 (Red Extension)", 2.1, "None"},
+                        {253, "Miragaon", "LINE_9", "Line 9 (Red Extension)", 4.3, "None"},
+                        {254, "Kashigaon", "LINE_9", "Line 9 (Red Extension)", 6.2, "Mira Road Extension"},
+
+                        // ── LINE 3: AQUA UNDERGROUND (Aarey JVLR - Cuffe Parade, 34.5 km, 27 Stations) ──
+                        {301, "Aarey JVLR", "LINE_3", "Line 3 (Aqua Underground)", 0.0, "Line 7 (Red)"},
+                        {302, "SEEPZ", "LINE_3", "Line 3 (Aqua Underground)", 1.5, "None"},
+                        {303, "MIDC - Andheri", "LINE_3", "Line 3 (Aqua Underground)", 2.8, "None"},
+                        {304, "Marol Naka", "LINE_3", "Line 3 (Aqua Underground)", 4.2, "Line 1 (Blue)"},
+                        {305, "CSMI Airport - T2 (International)", "LINE_3", "Line 3 (Aqua Underground)", 5.8, "International Airport Terminal 2"},
+                        {306, "Sahar Road", "LINE_3", "Line 3 (Aqua Underground)", 7.1, "None"},
+                        {307, "CSMI Airport - T1 (Domestic)", "LINE_3", "Line 3 (Aqua Underground)", 8.6, "Domestic Airport Terminal 1"},
+                        {308, "Santacruz Metro", "LINE_3", "Line 3 (Aqua Underground)", 10.2, "Western Railway Local"},
+                        {309, "Bandra Colony", "LINE_3", "Line 3 (Aqua Underground)", 12.0, "None"},
+                        {310, "BKC", "LINE_3", "Line 3 (Aqua Underground)", 14.1, "Bullet Train Interchange"},
+                        {311, "Dharavi", "LINE_3", "Line 3 (Aqua Underground)", 15.8, "None"},
+                        {312, "Shitala Devi Mandir", "LINE_3", "Line 3 (Aqua Underground)", 17.2, "None"},
+                        {313, "Dadar Metro", "LINE_3", "Line 3 (Aqua Underground)", 18.9, "Central & Western Railway Local"},
+                        {314, "Siddhivinayak", "LINE_3", "Line 3 (Aqua Underground)", 20.3, "Prabhadevi"},
+                        {315, "Worli", "LINE_3", "Line 3 (Aqua Underground)", 21.8, "None"},
+                        {316, "Acharya Atre Chowk", "LINE_3", "Line 3 (Aqua Underground)", 23.2, "Worli Naka"},
+                        {317, "Science Centre", "LINE_3", "Line 3 (Aqua Underground)", 24.5, "Nehru Science Centre"},
+                        {318, "Mahalaxmi Metro", "LINE_3", "Line 3 (Aqua Underground)", 25.9, "Western Railway Local & Monorail"},
+                        {319, "Mumbai Central - JSS Metro", "LINE_3", "Line 3 (Aqua Underground)", 27.2, "Western Railway & Outstation"},
+                        {320, "Grant Road", "LINE_3", "Line 3 (Aqua Underground)", 28.3, "Western Railway Local"},
+                        {321, "Charni Road - Girgaon", "LINE_3", "Line 3 (Aqua Underground)", 29.4, "Western Railway Local"},
+                        {322, "Marine Lines - Kalbadevi", "LINE_3", "Line 3 (Aqua Underground)", 30.5, "Western Railway Local"},
+                        {323, "CSMT", "LINE_3", "Line 3 (Aqua Underground)", 31.5, "Central Railway & Outstation"},
+                        {324, "Hutatma Chowk", "LINE_3", "Line 3 (Aqua Underground)", 32.2, "Flora Fountain"},
+                        {325, "Churchgate", "LINE_3", "Line 3 (Aqua Underground)", 32.9, "Western Railway Local"},
+                        {326, "Vidhan Bhavan", "LINE_3", "Line 3 (Aqua Underground)", 33.7, "Nariman Point"},
+                        {327, "Cuffe Parade", "LINE_3", "Line 3 (Aqua Underground)", 34.5, "South Mumbai Terminal"},
+
+                        // ── LINE 2B: YELLOW EXTENSION (Mandale - Diamond Garden, 5.5 km, 5 Stations) ──
+                        {401, "Mandale", "LINE_2B", "Line 2B (Yellow Extension)", 0.0, "Car Depot"},
+                        {402, "Mankhurd", "LINE_2B", "Line 2B (Yellow Extension)", 1.4, "Harbour Line Local"},
+                        {403, "Deonar", "LINE_2B", "Line 2B (Yellow Extension)", 2.8, "BSNL Interchange"},
+                        {404, "C Shivaji Maharaj Chowk", "LINE_2B", "Line 2B (Yellow Extension)", 4.1, "None"},
+                        {405, "Diamond Garden", "LINE_2B", "Line 2B (Yellow Extension)", 5.5, "Chembur Local Interchange"},
+
+                        // ── NAVI MUMBAI LINE 1 (Belapur CBD - Pendhar, 11.1 km, 11 Stations) ──
+                        {501, "Belapur CBD", "NMM_1", "Navi Mumbai Line 1", 0.0, "Harbour Line Local"},
+                        {502, "RBI Colony", "NMM_1", "Navi Mumbai Line 1", 1.1, "None"},
+                        {503, "Belpada", "NMM_1", "Navi Mumbai Line 1", 2.2, "None"},
+                        {504, "Utsav Chowk", "NMM_1", "Navi Mumbai Line 1", 3.3, "None"},
+                        {505, "Kendriya Vihar", "NMM_1", "Navi Mumbai Line 1", 4.4, "None"},
+                        {506, "Kharghar Village", "NMM_1", "Navi Mumbai Line 1", 5.5, "None"},
+                        {507, "Central Park", "NMM_1", "Navi Mumbai Line 1", 6.7, "None"},
+                        {508, "Pethpada", "NMM_1", "Navi Mumbai Line 1", 7.8, "None"},
+                        {509, "Amandoot", "NMM_1", "Navi Mumbai Line 1", 8.9, "None"},
+                        {510, "Pethali Taloja", "NMM_1", "Navi Mumbai Line 1", 10.0, "None"},
+                        {511, "Pendhar", "NMM_1", "Navi Mumbai Line 1", 11.1, "Taloja MIDC Terminal"}
                     };
 
                     for (Object[] row : allStations) {
@@ -224,7 +265,7 @@ public class MetroDatabaseManager {
                         ps.executeUpdate();
                     }
                 }
-                System.out.println("[RDBMS] Seeded 62 stations across all 4 operational Mumbai Metro lines into 'stations' table.");
+                System.out.println("[RDBMS] Seeded 90 stations across all 7 Mumbai & Navi Mumbai Metro lines into 'stations' table.");
             }
         }
     }
@@ -450,7 +491,10 @@ public class MetroDatabaseManager {
         map.put("LINE_1", "Line 1 (Blue): Versova <-> Ghatkopar");
         map.put("LINE_2A", "Line 2A (Yellow): Dahisar East <-> Andheri West");
         map.put("LINE_7", "Line 7 (Red): Dahisar East <-> Gundavali");
-        map.put("LINE_3", "Line 3 (Aqua): Aarey JVLR <-> Cuffe Parade");
+        map.put("LINE_9", "Line 9 (Red Extension): Dahisar East <-> Kashigaon");
+        map.put("LINE_3", "Line 3 (Aqua Underground): Aarey JVLR <-> Cuffe Parade");
+        map.put("LINE_2B", "Line 2B (Yellow Extension): Mandale <-> Diamond Garden");
+        map.put("NMM_1", "Navi Mumbai Line 1: Belapur CBD <-> Pendhar");
         return map;
     }
 

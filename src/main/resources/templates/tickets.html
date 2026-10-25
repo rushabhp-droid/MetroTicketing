@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Tickets - Mumbai Metro Ticketing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand"><i class="bi bi-train-front"></i><span>MUMBAI METRO ONE</span></div>
+            <ul class="nav-menu">
+                <li><a th:href="@{/dashboard}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a th:href="@{/tickets}" class="nav-link active"><i class="bi bi-ticket-perforated"></i> QR Tickets</a></li>
+                <li><a th:href="@{/cards}" class="nav-link"><i class="bi bi-credit-card"></i> Smart Cards</a></li>
+                <li><a th:href="@{/admin}" class="nav-link"><i class="bi bi-database"></i> Admin & RDBMS</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="bi bi-ticket-perforated"></i> QR Ticket Booking</h1>
+                <p>Book Single Journey and Return Journey QR Tokens with Instant Base64 Scannable Codes</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <!-- Ticket Generated Modal/Display Section -->
+            <div th:if="${receipt}" class="grid-2" style="margin-bottom: 2rem;">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-receipt"></i> Digital Ticket Receipt</div>
+                    <div class="card-body">
+                        <pre class="receipt-box" th:text="${receipt}"></pre>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-qr-code-scan"></i> Scannable Pure-Java QR Token</div>
+                    <div class="card-body qr-card">
+                        <img th:if="${qr}" th:src="'data:image/png;base64,' + ${qr}" alt="Metro QR Token" />
+                        <p style="margin-top: 0.85rem; font-weight: 600; color: var(--navy-primary);">
+                            <i class="bi bi-shield-check" style="color: var(--accent-green);"></i> Validated Pure-Java Reed-Solomon GF(256) QR Code
+                        </p>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                            Scan at Automated Fare Collection (AFC) Turnstiles to enter or exit
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Booking Form -->
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-cart-plus"></i> Book Journey Token</div>
+                    <div class="card-body">
+                        <form th:action="@{/tickets/book}" method="post">
+                            <div class="form-group">
+                                <label class="form-label" for="lineFilter"><i class="bi bi-funnel-fill"></i> Filter Stations by Metro Line</label>
+                                <select class="form-select" id="lineFilter" onchange="filterLine(this.value)">
+                                    <option value="ALL">All Metro Lines (90 Stations across 7 Lines)</option>
+                                    <option th:each="line : ${lines}" th:value="${line.key}" th:text="${line.value}"></option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="source">Source (Origin) Station</label>
+                                <select class="form-select" id="source" name="source" required>
+                                    <option value="" disabled selected>-- Select Origin Station --</option>
+                                    <option th:each="st : ${stations}" th:value="${st.stationId}" th:data-line="${st.lineCode}" th:text="${st.name + ' (' + st.lineName + (st.interchange != 'None' ? ' - ' + st.interchange : '') + ')'}"></option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="destination">Destination Station</label>
+                                <select class="form-select" id="destination" name="destination" required>
+                                    <option value="" disabled selected>-- Select Destination Station --</option>
+                                    <option th:each="st : ${stations}" th:value="${st.stationId}" th:data-line="${st.lineCode}" th:text="${st.name + ' (' + st.lineName + (st.interchange != 'None' ? ' - ' + st.interchange : '') + ')'}"></option>
+                                </select>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" for="passengers">Number of Passengers</label>
+                                    <input type="number" class="form-control" id="passengers" name="passengers" min="1" max="10" value="1" required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" id="returnTicket" name="returnTicket" value="true" />
+                                    <label for="returnTicket"><strong>Return Journey</strong> (10% Round-trip Concession)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="peakHour" name="peakHour" value="true" />
+                                    <label for="peakHour"><strong>Peak-Hour Rush Mode</strong> (+₹5.00 surge applied)</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                                <i class="bi bi-ticket-detailed"></i> Book & Generate QR Code
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Fare Slabs Reference -->
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-info-circle"></i> Mumbai Metro Dynamic Fare Slabs</div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Distance Slabs</th><th>Standard Fare</th><th>Peak Rush (+₹5)</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>0 to 3 km</td><td><strong>₹10.00</strong></td><td>₹15.00</td></tr>
+                                <tr><td>3 to 6 km</td><td><strong>₹20.00</strong></td><td>₹25.00</td></tr>
+                                <tr><td>6 to 9 km</td><td><strong>₹30.00</strong></td><td>₹35.00</td></tr>
+                                <tr><td>9 to 12 km</td><td><strong>₹40.00</strong></td><td>₹45.00</td></tr>
+                                <tr><td>12 to 15 km</td><td><strong>₹50.00</strong></td><td>₹55.00</td></tr>
+                                <tr><td>15 to 18 km</td><td><strong>₹60.00</strong></td><td>₹65.00</td></tr>
+                                <tr><td>18 to 21 km</td><td><strong>₹70.00</strong></td><td>₹75.00</td></tr>
+                                <tr><td>21 to 24 km</td><td><strong>₹80.00</strong></td><td>₹85.00</td></tr>
+                                <tr><td>> 24 km</td><td><strong>₹90.00 - ₹110.00</strong></td><td>₹95.00 - ₹115.00</td></tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                            <p><i class="bi bi-check2-circle" style="color: var(--accent-green);"></i> All fares calculated dynamically via polymorphic <code>FareCalculator</code> service.</p>
+                            <p><i class="bi bi-check2-circle" style="color: var(--accent-green);"></i> Round-trip returns automatically receive a 10% concession.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Token Transactions Table -->
+            <div class="card">
+                <div class="card-header"><i class="bi bi-clock-history"></i> Recent QR Token Bookings</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Txn ID</th>
+                                    <th>Ref / Ticket ID</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Origin → Destination</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="txn : ${transactions}" th:if="${txn.type.name() == 'TOKEN_PURCHASE'}">
+                                    <td><code th:text="${txn.txnId}"></code></td>
+                                    <td><strong th:text="${txn.refId}"></strong></td>
+                                    <td><span class="badge badge-blue" th:text="${txn.type}"></span></td>
+                                    <td th:text="'₹' + ${#numbers.formatDecimal(txn.amount, 1, 2)}"></td>
+                                    <td th:text="${txn.sourceStation + ' → ' + txn.destStation}"></td>
+                                    <td><span class="badge badge-green" th:text="${txn.status}"></span></td>
+                                    <td th:text="${txn.createdAt}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(transactions)}">
+                                    <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No token bookings found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System | Mumbai University SE Sem 3 OOPM Mini Project</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Migrated from Java Swing to Spring Boot Web Framework</p>
+    </footer>
+    <script>
+        function filterLine(lineCode) {
+            ['source', 'destination'].forEach(id => {
+                const select = document.getElementById(id);
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (!opt.value) return; // Keep placeholder
+                    if (lineCode === 'ALL' || opt.getAttribute('data-line') === lineCode) {
+                        opt.style.display = '';
+                    } else {
+                        opt.style.display = 'none';
+                    }
+                });
+                if (select.selectedOptions[0] && select.selectedOptions[0].style.display === 'none') {
+                    select.value = '';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

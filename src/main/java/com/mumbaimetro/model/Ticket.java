@@ -79,6 +79,11 @@ public class Ticket implements PrintableReceipt, Serializable {
         return ticketType;
     }
 
+    public String getQrData() {
+        return String.format("MUMBAI-METRO|%s|%s|%s|PAX:%d|%.2f",
+                ticketId, source.getName(), destination.getName(), passengerCount, totalAmount);
+    }
+
     @Override
     public String generateReceipt() {
         StringBuilder sb = new StringBuilder();

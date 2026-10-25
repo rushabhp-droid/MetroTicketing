@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & RDBMS - Mumbai Metro Ticketing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .sql-editor {
+            width: 100%;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            padding: 0.85rem;
+            background: #0f172a;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            border-radius: var(--radius-sm);
+            resize: vertical;
+            min-height: 90px;
+        }
+        .sql-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand"><i class="bi bi-train-front"></i><span>MUMBAI METRO ONE</span></div>
+            <ul class="nav-menu">
+                <li><a th:href="@{/dashboard}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a th:href="@{/tickets}" class="nav-link"><i class="bi bi-ticket-perforated"></i> QR Tickets</a></li>
+                <li><a th:href="@{/cards}" class="nav-link"><i class="bi bi-credit-card"></i> Smart Cards</a></li>
+                <li><a th:href="@{/admin}" class="nav-link active"><i class="bi bi-database"></i> Admin & RDBMS</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="bi bi-database"></i> Admin & Relational Database Console</h1>
+                <p>Direct SQLite RDBMS Management, Live SQL Console, and Foreign Key Schema Audit</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <!-- Database Info Header Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-server"></i></div>
+                    <div class="stat-info">
+                        <h3>SQLite 3</h3>
+                        <p>Embedded RDBMS</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-table"></i></div>
+                    <div class="stat-info">
+                        <h3>4 Tables</h3>
+                        <p>stations, cards, tickets, txns</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="bi bi-hdd-network"></i></div>
+                    <div class="stat-info">
+                        <h3 th:text="${#lists.size(stations)}">90</h3>
+                        <p>Network Stations</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="bi bi-folder-check"></i></div>
+                    <div class="stat-info">
+                        <h3 style="font-size: 1rem; word-break: break-all;" th:text="${dbPath}">mumbai_metro.db</h3>
+                        <p>Active DB File</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SQL Query Console -->
+            <div class="card">
+                <div class="card-header"><i class="bi bi-terminal-fill"></i> Interactive SQL Query Console</div>
+                <div class="card-body">
+                    <!-- Presets -->
+                    <div class="sql-presets">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT * FROM stations WHERE line_code = \'LINE_1\';')">
+                            Line 1 Stations
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT * FROM stations;')">
+                            All 90 Stations
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT * FROM cards;')">
+                            All Cards
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT * FROM transactions ORDER BY rowid DESC LIMIT 25;')">
+                            Recent Transactions
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT card_type, COUNT(*) as count, ROUND(SUM(balance), 2) as total_balance, ROUND(AVG(balance), 2) as avg_balance FROM cards GROUP BY card_type;')">
+                            Card Aggregates (GROUP BY)
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="setSql('SELECT s.name, s.line_name, COUNT(t.txn_id) as total_taps FROM stations s LEFT JOIN transactions t ON (s.name = t.source_station OR s.name = t.dest_station) GROUP BY s.id, s.name ORDER BY total_taps DESC;')">
+                            Traffic Analysis (JOIN + GROUP BY)
+                        </button>
+                    </div>
+
+                    <form th:action="@{/admin/query}" method="post">
+                        <div class="form-group">
+                            <textarea id="sqlText" name="sql" class="sql-editor" rows="3" required
+                                      th:text="${executedSql} ?: 'SELECT * FROM stations WHERE line_code = \'LINE_1\';'"></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-play-fill"></i> Execute SQL Query
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dynamic Query Results -->
+            <div th:if="${queryResult}" class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="bi bi-table"></i> Query Results</span>
+                    <span style="font-size: 0.85rem; font-weight: normal;">
+                        <span class="badge badge-green" th:text="${queryResult.rowCount + ' row(s)'}"></span>
+                        <span class="badge badge-blue" th:text="${queryResult.executionTimeMs + ' ms'}"></span>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p th:if="${queryResult.message}" style="margin-bottom: 0.75rem; color: var(--accent-green); font-weight: 500;">
+                        <i class="bi bi-info-circle"></i> <span th:text="${queryResult.message}"></span>
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th th:each="col : ${queryResult.columnNames}" th:text="${col}"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${queryResult.rows}">
+                                    <td th:each="cell : ${row}" th:text="${cell != null ? cell : 'NULL'}"></td>
+                                </tr>
+                                <tr th:if="${queryResult.rowCount == 0}">
+                                    <td th:colspan="${#arrays.length(queryResult.columnNames)}" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">
+                                        Query returned 0 rows.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Schema Documentation -->
+            <div class="card">
+                <div class="card-header"><i class="bi bi-diagram-3-fill"></i> Relational Database Schema Architecture</div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-primary);">
+                                <code>stations</code> Table
+                            </h4>
+                            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                Stores all operational Mumbai &amp; Navi Mumbai Metro stations across all 7 lines (Lines 1, 2A, 7, 9, 3, 2B, NMM-1) with distance markers and interchange links.
+                            </p>
+                            <pre class="receipt-box">CREATE TABLE stations (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    line_code TEXT NOT NULL,
+    line_name TEXT NOT NULL,
+    distance_km REAL NOT NULL,
+    interchange TEXT DEFAULT 'None',
+    UNIQUE(line_code, name)
+);</pre>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-primary);">
+                                <code>cards</code> Table
+                            </h4>
+                            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                Stores issued smart cards with polymorphic type attributes, balance, and account security flags.
+                            </p>
+                            <pre class="receipt-box">CREATE TABLE cards (
+    card_id TEXT PRIMARY KEY,
+    holder_name TEXT NOT NULL,
+    contact_number TEXT,
+    card_type TEXT NOT NULL,
+    balance REAL NOT NULL,
+    is_blocked INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+);</pre>
+                        </div>
+                    </div>
+                    <div class="grid-2" style="margin-top: 1rem;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-primary);">
+                                <code>tickets</code> Table
+                            </h4>
+                            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                Stores paper & QR digital tokens linked to origin and destination station Foreign Keys.
+                            </p>
+                            <pre class="receipt-box">CREATE TABLE tickets (
+    ticket_id TEXT PRIMARY KEY,
+    source_id INTEGER NOT NULL,
+    dest_id INTEGER NOT NULL,
+    distance_km REAL NOT NULL,
+    unit_fare REAL NOT NULL,
+    passenger_count INTEGER DEFAULT 1,
+    is_return INTEGER DEFAULT 0,
+    total_fare REAL NOT NULL,
+    ticket_type TEXT NOT NULL,
+    qr_data TEXT,
+    booked_at TEXT NOT NULL,
+    FOREIGN KEY (source_id) REFERENCES stations(id),
+    FOREIGN KEY (dest_id) REFERENCES stations(id)
+);</pre>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-primary);">
+                                <code>transactions</code> Table
+                            </h4>
+                            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                Immutable financial and journey audit log tracking gate tap-ins, tap-outs, deductions, and top-ups.
+                            </p>
+                            <pre class="receipt-box">CREATE TABLE transactions (
+    txn_id TEXT PRIMARY KEY,
+    ref_id TEXT NOT NULL,
+    txn_type TEXT NOT NULL,
+    amount REAL NOT NULL,
+    source_station TEXT,
+    dest_station TEXT,
+    balance_after REAL DEFAULT 0.0,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Mumbai Metro One (MMOPL) - Smart Card & Fare Ticketing System | Mumbai University SE Sem 3 OOPM Mini Project</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Migrated from Java Swing to Spring Boot Web Framework</p>
+    </footer>
+
+    <script>
+        function setSql(query) {
+            document.getElementById('sqlText').value = query;
+        }
+    </script>
+</body>
+</html>
