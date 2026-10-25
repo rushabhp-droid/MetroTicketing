@@ -229,43 +229,48 @@ export function SmartCards({ cards, onRefreshCards, addToast }) {
           const isTourist = card.validityDays > 0;
           const isBlocked = card.blocked;
 
-          // Holographic gradient
-          let bgGradient = 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%)';
+          // Holographic AMOLED pure-black gradient with neon rim
+          let bgGradient = 'linear-gradient(135deg, #000000 0%, #041421 50%, #002d4a 100%)';
+          let borderGlow = '1px solid rgba(0, 240, 255, 0.35)';
           let badgeText = 'REGULAR CARD';
-          let badgeColor = '#38bdf8';
+          let badgeColor = '#00f0ff';
           let icon = <CreditCard size={20} />;
 
           if (isStudent) {
-            bgGradient = 'linear-gradient(135deg, #1c1917 0%, #7c2d12 50%, #ea580c 100%)';
+            bgGradient = 'linear-gradient(135deg, #000000 0%, #201004 50%, #451b03 100%)';
+            borderGlow = '1px solid rgba(245, 158, 11, 0.4)';
             badgeText = 'STUDENT PASS (20% OFF)';
-            badgeColor = '#fb923c';
+            badgeColor = '#f59e0b';
             icon = <GraduationCap size={20} />;
           } else if (isTourist) {
-            bgGradient = 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #8b5cf6 100%)';
+            bgGradient = 'linear-gradient(135deg, #000000 0%, #160726 50%, #3b106b 100%)';
+            borderGlow = '1px solid rgba(168, 85, 247, 0.4)';
             badgeText = 'TOURIST 3-DAY PASS';
-            badgeColor = '#a78bfa';
+            badgeColor = '#c084fc';
             icon = <Compass size={20} />;
           }
 
           if (isBlocked) {
-            bgGradient = 'linear-gradient(135deg, #1f2937 0%, #450a0a 50%, #991b1b 100%)';
+            bgGradient = 'linear-gradient(135deg, #000000 0%, #210505 50%, #4c0707 100%)';
+            borderGlow = '1px solid rgba(239, 68, 68, 0.5)';
           }
 
           return (
-            <div key={card.cardId} className="card-holo" style={{ background: bgGradient }}>
+            <div key={card.cardId} className="card-holo" style={{ background: bgGradient, border: borderGlow }}>
               {/* Card Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.75rem' }}>
                 <div>
                   <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 800, opacity: 0.85 }}>
                     MUMBAI METRO ONE
                   </div>
-                  <span className="badge-pill" style={{ background: 'rgba(255,255,255,0.15)', color: badgeColor, marginTop: '0.35rem' }}>
+                  <span className="badge-pill" style={{ background: 'rgba(0,0,0,0.4)', color: badgeColor, border: `1px solid ${badgeColor}33`, marginTop: '0.35rem' }}>
                     {icon} {badgeText}
                   </span>
                 </div>
                 <div style={{
-                  background: isBlocked ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)',
-                  border: `1px solid ${isBlocked ? '#ef4444' : '#10b981'}`,
+                  background: isBlocked ? 'rgba(239,68,68,0.2)' : 'rgba(0,255,136,0.15)',
+                  border: `1px solid ${isBlocked ? '#ef4444' : '#00ff88'}`,
+                  color: isBlocked ? '#ff4d4d' : '#00ff88',
                   borderRadius: '9999px',
                   padding: '0.2rem 0.6rem',
                   fontSize: '0.7rem',
@@ -282,14 +287,14 @@ export function SmartCards({ cards, onRefreshCards, addToast }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginTop: '0.5rem' }}>
                   <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>BALANCE:</span>
-                  <span style={{ fontSize: '1.65rem', fontWeight: 800, color: '#f8fafc' }}>
+                  <span style={{ fontSize: '1.65rem', fontWeight: 800, color: '#00f0ff' }}>
                     ₹{card.balance.toFixed(2)}
                   </span>
                 </div>
               </div>
 
               {/* Cardholder Info */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem' }}>
                 <div>
                   <div style={{ fontSize: '0.7rem', opacity: 0.65 }}>CARD HOLDER</div>
                   <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{card.holderName}</div>
@@ -303,7 +308,7 @@ export function SmartCards({ cards, onRefreshCards, addToast }) {
                   <button
                     onClick={() => handleRecharge(card.cardId, 100)}
                     className="btn-transit btn-ghost"
-                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.2)' }}
+                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)' }}
                     title="Quick +₹100 Recharge"
                   >
                     +₹100
@@ -311,7 +316,7 @@ export function SmartCards({ cards, onRefreshCards, addToast }) {
                   <button
                     onClick={() => handleToggleBlock(card.cardId)}
                     className="btn-transit btn-ghost"
-                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.2)' }}
+                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)' }}
                     title={isBlocked ? 'Unblock card' : 'Block card'}
                   >
                     {isBlocked ? <Unlock size={14} /> : <Lock size={14} />}

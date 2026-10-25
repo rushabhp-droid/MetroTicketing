@@ -213,8 +213,8 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
           {/* Selected Card Live Status Preview */}
           {selectedCard && (
             <div style={{
-              background: selectedCard.blocked ? 'rgba(239,68,68,0.1)' : 'rgba(15,23,42,0.6)',
-              border: `1px solid ${selectedCard.blocked ? '#ef4444' : 'rgba(255,255,255,0.1)'}`,
+              background: selectedCard.blocked ? 'rgba(239,68,68,0.1)' : '#050505',
+              border: `1px solid ${selectedCard.blocked ? '#ef4444' : 'rgba(255,255,255,0.15)'}`,
               borderRadius: '0.75rem', padding: '0.85rem 1.15rem',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center'
             }}>
@@ -235,7 +235,7 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
           )}
 
           {/* Entry Gate Operation */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ background: '#050505', padding: '1rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.12)' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-emerald)', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <ArrowRight size={16} /> AFC Entry Gate (Tap-In)
             </div>
@@ -264,7 +264,7 @@ export function TurnstileGate({ cards, stations, onRefreshCards, addToast }) {
           </div>
 
           {/* Exit Gate Operation */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ background: '#050505', padding: '1rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.12)' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-rose)', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <ArrowRight size={16} /> AFC Exit Gate (Tap-Out & Deduction)
             </div>

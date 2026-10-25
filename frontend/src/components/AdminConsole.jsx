@@ -83,9 +83,9 @@ export function AdminConsole({ stats, addToast }) {
               padding: '1rem',
               fontFamily: 'var(--font-mono)',
               fontSize: '0.875rem',
-              backgroundColor: '#0a0f1d',
-              color: '#38bdf8',
-              border: '1px solid rgba(255,255,255,0.12)',
+              backgroundColor: '#000000',
+              color: '#00f0ff',
+              border: '1px solid rgba(0, 240, 255, 0.3)',
               borderRadius: '0.75rem',
               outline: 'none',
               resize: 'vertical'
@@ -116,10 +116,10 @@ export function AdminConsole({ stats, addToast }) {
             </h3>
             {queryResult.rowCount !== undefined && (
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <span className="badge-pill" style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>
+                <span className="badge-pill" style={{ background: 'rgba(0,255,136,0.12)', color: '#00ff88', border: '1px solid rgba(0,255,136,0.3)' }}>
                   {queryResult.rowCount} rows fetched
                 </span>
-                <span className="badge-pill" style={{ background: 'rgba(56,189,248,0.2)', color: '#38bdf8' }}>
+                <span className="badge-pill" style={{ background: 'rgba(0,240,255,0.12)', color: '#00f0ff', border: '1px solid rgba(0,240,255,0.3)' }}>
                   {queryResult.executionTimeMs} ms
                 </span>
               </div>

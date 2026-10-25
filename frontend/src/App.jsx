@@ -96,9 +96,8 @@ export default function App() {
       {/* Top Navbar */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
-        backgroundColor: 'rgba(9, 13, 22, 0.85)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        backgroundColor: '#000000',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
       }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {/* Brand */}
@@ -114,8 +113,8 @@ export default function App() {
             <div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>MUMBAI METRO ONE</span>
-                <span className="badge-pill" style={{ background: 'rgba(56,189,248,0.2)', color: 'var(--accent-cyan)', fontSize: '0.65rem' }}>
-                  REACT 18 SPA
+                <span className="badge-pill" style={{ background: 'rgba(0, 240, 255, 0.15)', color: 'var(--accent-cyan)', border: '1px solid rgba(0, 240, 255, 0.3)', fontSize: '0.65rem' }}>
+                  AMOLED PURE BLACK
                 </span>
               </div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
@@ -125,7 +124,7 @@ export default function App() {
           </div>
 
           {/* Navigation Tabs */}
-          <nav style={{ display: 'flex', gap: '0.35rem', background: 'rgba(255,255,255,0.03)', padding: '0.35rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <nav style={{ display: 'flex', gap: '0.35rem', background: '#0a0a0a', padding: '0.35rem', borderRadius: '0.85rem', border: '1px solid rgba(255,255,255,0.1)' }}>
             {[
               { id: 'map', label: 'Interactive Map', icon: <MapIcon size={16} /> },
               { id: 'tickets', label: 'QR Tickets', icon: <Ticket size={16} /> },
@@ -144,7 +143,7 @@ export default function App() {
                     padding: '0.5rem 0.9rem', fontSize: '0.825rem',
                     background: active ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
                     color: active ? '#ffffff' : 'var(--text-muted)',
-                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.35)' : 'none'
+                    boxShadow: active ? '0 0 16px rgba(37,99,235,0.5)' : 'none'
                   }}
                 >
                   {tab.icon}
@@ -159,7 +158,7 @@ export default function App() {
             <div style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
               padding: '0.4rem 0.85rem', borderRadius: '9999px',
-              background: status?.isPeakHour ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.12)',
+              background: status?.isPeakHour ? 'rgba(239,68,68,0.18)' : 'rgba(16,185,129,0.15)',
               border: `1px solid ${status?.isPeakHour ? '#ef4444' : '#10b981'}`
             }}>
               <Flame size={15} style={{ color: status?.isPeakHour ? '#ef4444' : '#10b981' }} />
@@ -238,8 +237,8 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        background: 'rgba(9, 13, 22, 0.95)',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        background: '#000000',
         padding: '1.5rem 0',
         textAlign: 'center',
         fontSize: '0.8rem',

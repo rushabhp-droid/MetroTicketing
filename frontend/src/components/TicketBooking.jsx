@@ -221,19 +221,20 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
             {/* Live Fare Calculation Box */}
             {farePreview && (
               <div style={{
-                background: 'rgba(6, 182, 212, 0.08)',
-                border: '1px solid rgba(6, 182, 212, 0.3)',
+                background: '#080808',
+                border: '1px solid rgba(0, 240, 255, 0.35)',
                 borderRadius: '0.85rem',
                 padding: '1rem 1.25rem',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
+                boxShadow: '0 0 20px rgba(0, 240, 255, 0.1)'
               }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 700, letterSpacing: '0.05em' }}>
                     LIVE FARE CALCULATION
                   </div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)', marginTop: '0.2rem' }}>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff', marginTop: '0.2rem' }}>
                     {farePreview.source} ➔ {farePreview.destination} ({farePreview.distanceKm} km)
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '0.15rem' }}>
@@ -268,20 +269,20 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
               <div className="ticket-punch-left" />
               <div className="ticket-punch-right" />
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px dashed #cbd5e1', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px dashed rgba(255, 255, 255, 0.15)', paddingBottom: '1rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', letterSpacing: '0.1em', fontWeight: 800, color: '#64748b' }}>
+                  <div style={{ fontSize: '0.7rem', letterSpacing: '0.1em', fontWeight: 800, color: '#a1a1aa' }}>
                     MUMBAI METRO ONE (MMOPL)
                   </div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
                     {bookedTicket.ticketType}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <span className="badge-pill" style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' }}>
+                  <span className="badge-pill" style={{ background: 'rgba(0, 255, 136, 0.1)', color: '#00ff88', border: '1px solid rgba(0, 255, 136, 0.3)' }}>
                     VALID DIGITAL TOKEN
                   </span>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.25rem' }}>
                     ID: {bookedTicket.ticketId}
                   </div>
                 </div>
@@ -290,15 +291,15 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
               {/* Journey Details */}
               <div style={{ margin: '1.25rem 0', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '0.75rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ORIGIN</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a' }}>{bookedTicket.source}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#2563eb' }}>{bookedTicket.sourceLine}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>ORIGIN</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#ffffff' }}>{bookedTicket.source}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>{bookedTicket.sourceLine}</div>
                 </div>
-                <ArrowRight style={{ color: '#94a3b8' }} size={24} />
+                <ArrowRight style={{ color: 'var(--accent-cyan)' }} size={24} />
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>DESTINATION</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a' }}>{bookedTicket.destination}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#2563eb' }}>{bookedTicket.destinationLine}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>DESTINATION</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#ffffff' }}>{bookedTicket.destination}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>{bookedTicket.destinationLine}</div>
                 </div>
               </div>
 
@@ -308,10 +309,10 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                background: '#f8fafc',
+                background: '#ffffff',
                 padding: '1.25rem',
                 borderRadius: '1rem',
-                border: '1px solid #e2e8f0',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 margin: '1.25rem 0'
               }}>
                 <div className="laser-scanner" />
@@ -326,7 +327,7 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
                 }}>
                   <ShieldCheck size={16} /> Pure-Java Reed-Solomon GF(256) Verified
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.15rem' }}>
+                <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: '0.15rem' }}>
                   Hold phone or printed barcode at AFC gate scanner
                 </div>
               </div>
@@ -334,15 +335,15 @@ export function TicketBooking({ stations, origin, destination, setOrigin, setDes
               {/* Ticket Footer Financials */}
               <div style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                borderTop: '2px dashed #cbd5e1', paddingTop: '1rem', fontSize: '0.85rem'
+                borderTop: '2px dashed rgba(255, 255, 255, 0.15)', paddingTop: '1rem', fontSize: '0.85rem'
               }}>
                 <div>
-                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>PASSENGERS: {bookedTicket.passengers}</div>
-                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>DISTANCE: {bookedTicket.distanceKm} km</div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>PASSENGERS: {bookedTicket.passengers}</div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>DISTANCE: {bookedTicket.distanceKm} km</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>AMOUNT PAID</div>
-                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>AMOUNT PAID</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#00f0ff' }}>
                     ₹{bookedTicket.totalAmount.toFixed(2)}
                   </div>
                 </div>

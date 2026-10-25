@@ -81,9 +81,9 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
 
       {/* Network Station Grid Visualization */}
       <div style={{
-        background: 'rgba(10, 15, 29, 0.9)',
+        background: '#000000',
         borderRadius: '1rem',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid rgba(255,255,255,0.12)',
         padding: '1.5rem',
         minHeight: '280px',
         position: 'relative',
@@ -92,7 +92,7 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
         {/* Ambient Grid Lines Background */}
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
           pointerEvents: 'none'
         }} />
@@ -101,11 +101,11 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
         {(origin || destination) && (
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'rgba(15, 23, 42, 0.95)',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
+            background: '#080808',
+            border: '1px solid rgba(0, 240, 255, 0.35)',
             borderRadius: '0.75rem', padding: '0.75rem 1.25rem',
             marginBottom: '1.25rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            boxShadow: '0 4px 16px rgba(0,0,0,0.8)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -187,8 +187,8 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
                         minWidth: '120px',
                         maxWidth: '140px',
                         padding: '0.5rem 0.65rem',
-                        background: 'rgba(15, 23, 42, 0.85)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: '#050505',
+                        border: '1px solid rgba(255,255,255,0.12)',
                         borderRadius: '0.75rem',
                         transition: 'all 0.2s ease',
                         textAlign: 'center',
@@ -201,7 +201,7 @@ export function InteractiveMap({ stations, lines, origin, destination, onSelectS
                         backgroundColor: isOrigin ? '#10b981' : isDest ? '#ef4444' : cfg.color,
                         boxShadow: `0 0 8px ${isOrigin ? '#10b981' : isDest ? '#ef4444' : cfg.color}`,
                         marginBottom: '0.45rem',
-                        border: '2px solid #0f172a'
+                        border: '2px solid #000000'
                       }} />
 
                       <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)', lineHeight: 1.2 }}>

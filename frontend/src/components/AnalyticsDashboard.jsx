@@ -87,12 +87,12 @@ export function AnalyticsDashboard({ stats, transactions, lines }) {
                 key={code}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: '0.75rem'
+                  padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.75rem'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <span className="badge-pill" style={{ background: 'rgba(56,189,248,0.15)', color: '#38bdf8' }}>
+                  <span className="badge-pill" style={{ background: 'rgba(0, 240, 255, 0.12)', color: '#00f0ff', border: '1px solid rgba(0, 240, 255, 0.3)' }}>
                     {code}
                   </span>
                   <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{name}</span>
@@ -116,10 +116,11 @@ export function AnalyticsDashboard({ stats, transactions, lines }) {
                     <span style={{ fontWeight: 600 }}>{stName}</span>
                     <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>{count} taps</span>
                   </div>
-                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{
                       width: `${pct}%`, height: '100%',
-                      background: 'linear-gradient(90deg, #0284c7 0%, #06b6d4 100%)',
+                      background: 'linear-gradient(90deg, #00f0ff 0%, #38bdf8 100%)',
+                      boxShadow: '0 0 8px rgba(0, 240, 255, 0.5)',
                       borderRadius: '3px', transition: 'width 0.5s ease'
                     }} />
                   </div>
@@ -151,19 +152,19 @@ export function AnalyticsDashboard({ stats, transactions, lines }) {
             <tbody>
               {transactions && transactions.slice(0, 12).map((txn) => (
                 <tr key={txn.txnId} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '0.75rem 1rem' }}><code style={{ color: 'var(--accent-cyan)' }}>{txn.txnId}</code></td>
+                  <td style={{ padding: '0.75rem 1rem' }}><code style={{ color: '#00f0ff' }}>{txn.txnId}</code></td>
                   <td style={{ padding: '0.75rem 1rem' }}>
-                    <span className="badge-pill" style={{ background: 'rgba(56,189,248,0.15)', color: '#38bdf8' }}>
+                    <span className="badge-pill" style={{ background: 'rgba(0, 240, 255, 0.12)', color: '#00f0ff', border: '1px solid rgba(0, 240, 255, 0.3)' }}>
                       {txn.type}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{txn.refId || txn.referenceId}</td>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>₹{txn.amount.toFixed(2)}</td>
+                  <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#ffffff' }}>₹{txn.amount.toFixed(2)}</td>
                   <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>
                     {txn.sourceStation && txn.sourceStation !== '-' ? `${txn.sourceStation} ➔ ${txn.destStation}` : '-'}
                   </td>
                   <td style={{ padding: '0.75rem 1rem' }}>
-                    <span className="badge-pill" style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>
+                    <span className="badge-pill" style={{ background: 'rgba(0, 255, 136, 0.12)', color: '#00ff88', border: '1px solid rgba(0, 255, 136, 0.3)' }}>
                       {txn.status}
                     </span>
                   </td>
